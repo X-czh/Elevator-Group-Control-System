@@ -1,0 +1,3525 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 11.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[    159565,       3517]
+NotebookOptionsPosition[    155200,       3384]
+NotebookOutlinePosition[    156811,       3434]
+CellTagsIndexPosition[    156475,       3422]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell[BoxData["\[IndentingNewLine]"], "Input",
+ CellChangeTimes->{3.6906164193971148`*^9},
+ CellID->129567775],
+
+Cell[CellGroupData[{
+
+Cell[TextData[{
+ "Elevator Group Control System\n",
+ StyleBox["Zhanghao Chen, NYU Shanghai",
+  FontSize->12,
+  FontColor->GrayLevel[0]]
+}], "DemoTitle",
+ CellChangeTimes->{{3.689315361235147*^9, 3.6893153775183516`*^9}, {
+  3.690421819831378*^9, 3.690421825632399*^9}, {3.6904218674194937`*^9, 
+  3.690421900843158*^9}, {3.6904219613047066`*^9, 3.690421990894561*^9}},
+ Background->None],
+
+Cell[CellGroupData[{
+
+Cell["", "InitializationSection"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"ClearAll", "[", "\"\<Global`*\>\"", "]"}], " ", 
+  "\[IndentingNewLine]", "\[IndentingNewLine]", 
+  StyleBox[
+   RowBox[{"(*", " ", 
+    RowBox[{"Definition", " ", "of", " ", "constants"}], " ", "*)"}],
+   Background->None], "\[IndentingNewLine]", "\t", 
+  RowBox[{"(*", " ", 
+   RowBox[{"State", " ", "of", " ", "elevators"}], " ", 
+   "*)"}]}], "\[IndentingNewLine]", 
+ StyleBox[
+  RowBox[{
+   RowBox[{"$UP", "=", "1"}], ";"}],
+  Background->None], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"$DOWN", 
+   StyleBox["=",
+    Background->None], 
+   StyleBox[
+    RowBox[{"-", "1"}],
+    Background->None]}], 
+  StyleBox[";",
+   Background->None]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"$IDLE", 
+   StyleBox[" ",
+    Background->None], 
+   StyleBox["=",
+    Background->None], 
+   StyleBox[" ",
+    Background->None], 
+   StyleBox["0",
+    Background->None]}], 
+  StyleBox[";",
+   Background->None]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"$STOP", "=", "2"}], ";"}], "\[IndentingNewLine]", "\t", 
+  RowBox[{"(*", " ", 
+   RowBox[{"State", " ", "of", " ", "elevator", " ", "operations"}], " ", 
+   "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"$NORMAL", "=", "0"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"$ARRIVE", "=", "1"}], ";"}], "\[IndentingNewLine]", "\t", 
+  RowBox[{"(*", " ", 
+   RowBox[{"State", " ", "of", " ", "elevator", " ", "doors"}], " ", 
+   "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"$OPEN", "=", 
+   RowBox[{"-", ".5"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"$CLOSED", "=", "0"}], ";"}], "\[IndentingNewLine]", "\t", 
+  RowBox[{"(*", "  ", 
+   RowBox[{"Elevator", " ", "specifications"}], " ", 
+   "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"$SPEED", "=", "0.6"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"$DOOROPENTIME", "=", "5"}], ";"}], "\[IndentingNewLine]", "\t", 
+  RowBox[{"(*", " ", 
+   RowBox[{"Height", " ", "of", " ", "floors"}], " ", 
+   "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"$f0", 
+    StyleBox["=",
+     Background->None], 
+    StyleBox["0.05",
+     Background->None]}], 
+   StyleBox[";",
+    Background->None]}], 
+  StyleBox[" ",
+   Background->None], 
+  RowBox[{
+   StyleBox["(*",
+    Background->None], 
+   StyleBox[" ",
+    Background->None], 
+   RowBox[{
+    StyleBox[
+     RowBox[{
+     "directly", " ", "use", " ", "0", " ", "will", " ", "yield", " ", 
+      "error"}],
+     Background->None], 
+    StyleBox[",",
+     Background->None], 
+    StyleBox[" ",
+     Background->None], 
+    RowBox[{
+     StyleBox[
+      RowBox[{
+       RowBox[{"as", " ", "4.8"}], "-", "0.6", "-", "0.6", "-", "0.6", "-", 
+       "0.6", "-", "0.6", "-", "0.6", "-", "0.6", "-", "0.6"}],
+      Background->None], 
+     StyleBox["\[NotEqual]",
+      Background->None], "0"}], ",", " ", 
+    RowBox[{
+    "involving", " ", "representation", " ", "of", " ", "floating", " ", 
+     RowBox[{"numbers", "?"}]}]}], " ", "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"$f1", 
+   StyleBox["=",
+    Background->None], 
+   StyleBox["1.25",
+    Background->None]}], 
+  StyleBox[";",
+   Background->None]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"$f2", 
+   StyleBox["=",
+    Background->None], 
+   StyleBox["2.45",
+    Background->None]}], 
+  StyleBox[";",
+   Background->None]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"$f3", 
+   StyleBox["=",
+    Background->None], 
+   StyleBox["3.65",
+    Background->None]}], 
+  StyleBox[";",
+   Background->None]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"$f4", 
+   StyleBox["=",
+    Background->None], 
+   StyleBox["4.85",
+    Background->None]}], 
+  StyleBox[";",
+   Background->None]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"$f5", 
+   StyleBox["=",
+    Background->None], 
+   StyleBox["6.05",
+    Background->None]}], 
+  StyleBox[";",
+   Background->None]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"$f6", 
+   StyleBox["=",
+    Background->None], 
+   StyleBox["7.25",
+    Background->None]}], 
+  StyleBox[";",
+   Background->None]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"$f7", 
+    StyleBox["=",
+     Background->None], 
+    StyleBox["8.45",
+     Background->None]}], 
+   StyleBox[";",
+    Background->None]}], "\[IndentingNewLine]", "\[IndentingNewLine]", 
+  RowBox[{"(*", " ", 
+   RowBox[{
+   "Initialization", " ", "of", " ", "time", " ", "counter", " ", "and", " ", 
+    "callqueue"}], "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"t", "=", "0"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"callqueue", "=", 
+    RowBox[{"{", "}"}]}], ";"}], "\[IndentingNewLine]", "\[IndentingNewLine]", 
+  RowBox[{
+   StyleBox["(*",
+    Background->None], 
+   StyleBox[" ",
+    Background->None], 
+   RowBox[{"Initialization", " ", "of", " ", "elevators"}], " ", 
+   "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"elevator1State", "=", "$IDLE"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"elevator2State", "=", "$IDLE"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"elevator3State", "=", "$IDLE"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"elevator1OperationState", "=", "$NORMAL"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"elevator2OperationState", "=", "$NORMAL"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"elevator3OperationState", "=", "$NORMAL"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"elevator1Height", "=", "$f0"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"elevator2Height", "=", "$f4"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"elevator3Height", "=", "$f7"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"queue1", "=", 
+   RowBox[{"{", "}"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"queue2", "=", 
+   RowBox[{"{", "}"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"queue3", "=", 
+   RowBox[{"{", "}"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"door1", "=", "$CLOSED"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"door2", "=", "$CLOSED"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"door3", "=", "$CLOSED"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"dooropentime1", "=", "0"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"dooropentime2", "=", "0"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"dooropentime3", "=", "0"}], ";"}], "\[IndentingNewLine]", 
+  "\[IndentingNewLine]", 
+  RowBox[{"(*", " ", 
+   RowBox[{"test", " ", "data", " ", "generator"}], " ", 
+   "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    StyleBox[
+     RowBox[{"sampleGenerator", "[", "t_", "]"}],
+     Background->None], 
+    StyleBox[":=",
+     Background->None], 
+    RowBox[{"Which", "[", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"t", "\[Equal]", "2"}], ",", 
+      RowBox[{"callqueue", "=", 
+       RowBox[{"Join", "[", 
+        RowBox[{"callqueue", ",", 
+         RowBox[{"{", 
+          RowBox[{
+           RowBox[{"{", 
+            RowBox[{"$f0", ",", "$f4", ",", "$UP"}], "}"}], ",", 
+           RowBox[{"{", 
+            RowBox[{"$f1", ",", "$f4", ",", "$UP"}], "}"}], ",", 
+           RowBox[{"{", 
+            RowBox[{"$f4", ",", "$f0", ",", "$DOWN"}], "}"}], ",", 
+           RowBox[{"{", 
+            RowBox[{"$f6", ",", "$f1", ",", "$DOWN"}], "}"}]}], "}"}]}], 
+        "]"}]}], ",", "\[IndentingNewLine]", 
+      RowBox[{"t", "\[Equal]", "20"}], ",", 
+      RowBox[{"callqueue", "=", 
+       RowBox[{"Join", "[", 
+        RowBox[{"callqueue", ",", 
+         RowBox[{"{", 
+          RowBox[{
+           RowBox[{"{", 
+            RowBox[{"$f0", ",", "$f7", ",", "$UP"}], "}"}], ",", 
+           RowBox[{"{", 
+            RowBox[{"$f5", ",", "$f2", ",", "$DOWN"}], "}"}]}], "}"}]}], 
+        "]"}]}]}], "\[IndentingNewLine]", "]"}]}], ";"}], 
+  "\[IndentingNewLine]", "\[IndentingNewLine]", 
+  RowBox[{"(*", " ", 
+   RowBox[{"Elevator", " ", "group", " ", "control", " ", "algorithm"}], " ", 
+   "*)"}], "\[IndentingNewLine]", 
+  StyleBox[
+   RowBox[{"(*", " ", 
+    RowBox[{
+    "based", " ", "on", " ", "the", " ", "principle", " ", "of", " ", 
+     "minimizing", " ", "waiting", " ", "time"}], " ", "*)"}],
+   Background->None], "\[IndentingNewLine]", "\t", 
+  RowBox[{"(*", " ", 
+   RowBox[{"Calculate", " ", "the", " ", "waiting", " ", "time"}], " ", 
+   "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"timeCost", "[", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"depart_", ",", "dest_", ",", "dir_"}], "}"}], ",", 
+       "elevatorHeight_", ",", "elevatorState_", ",", " ", "queue_"}], "}"}], 
+     "]"}], ":=", 
+    RowBox[{"Which", "[", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"elevatorState", "\[Equal]", "$UP"}], ",", 
+      RowBox[{"If", "[", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"dir", "\[Equal]", "$UP"}], "&&", 
+         RowBox[{"depart", ">", "elevatorHeight"}]}], ",", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"(", 
+           RowBox[{"dest", "-", "elevatorHeight"}], ")"}], "/", "$SPEED"}], 
+         "+", 
+         RowBox[{"$DOOROPENTIME", "*", 
+          RowBox[{"Count", "[", 
+           RowBox[{"queue", ",", 
+            RowBox[{"_", "?", 
+             RowBox[{"(", 
+              RowBox[{
+               RowBox[{"#", "<", "dest"}], "&"}], ")"}]}]}], "]"}]}]}], ",", 
+        "999"}], "]"}], ",", "\[IndentingNewLine]", 
+      RowBox[{"elevatorState", "\[Equal]", "$DOWN"}], ",", 
+      RowBox[{"If", "[", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"dir", "\[Equal]", "$DOWN"}], "&&", 
+         RowBox[{"depart", "<", "elevatorHeight"}]}], ",", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"(", 
+           RowBox[{"elevatorHeight", "-", "dest"}], ")"}], "/", "$SPEED"}], 
+         "+", 
+         RowBox[{"$DOOROPENTIME", "*", 
+          RowBox[{"Count", "[", 
+           RowBox[{"queue", ",", 
+            RowBox[{"_", "?", 
+             RowBox[{"(", 
+              RowBox[{
+               RowBox[{"#", ">", "dest"}], "&"}], ")"}]}]}], "]"}]}]}], ",", 
+        "999"}], "]"}], ",", "\[IndentingNewLine]", 
+      RowBox[{"elevatorState", "\[Equal]", "$IDLE"}], ",", 
+      RowBox[{
+       RowBox[{"(", 
+        RowBox[{
+         RowBox[{"Abs", "[", 
+          RowBox[{"depart", "-", "elevatorHeight"}], "]"}], "+", 
+         RowBox[{"Abs", "[", 
+          RowBox[{"dest", "-", "depart"}], "]"}]}], ")"}], "/", "$SPEED"}]}], 
+     "\[IndentingNewLine]", "]"}]}], ";"}], "\[IndentingNewLine]", "\t", 
+  RowBox[{"(*", " ", 
+   RowBox[{"Assign", " ", "an", " ", "elevator"}], " ", 
+   "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"elevatorAssign", "[", "t_", "]"}], ":=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", "}"}], ",", "\[IndentingNewLine]", 
+      RowBox[{
+       RowBox[{"If", "[", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"Length", "[", "callqueue", "]"}], ">", "0"}], ",", 
+         "\[IndentingNewLine]", 
+         RowBox[{
+          RowBox[{"callqueueTimeCost", "=", 
+           RowBox[{"Table", "[", 
+            RowBox[{
+             RowBox[{"timeCost", "/@", 
+              RowBox[{"{", 
+               RowBox[{
+                RowBox[{"{", 
+                 RowBox[{
+                  RowBox[{
+                  "callqueue", "\[LeftDoubleBracket]", "i", 
+                   "\[RightDoubleBracket]"}], ",", "elevator1Height", ",", 
+                  "elevator1State", ",", "queue1"}], "}"}], ",", 
+                RowBox[{"{", 
+                 RowBox[{
+                  RowBox[{
+                  "callqueue", "\[LeftDoubleBracket]", "i", 
+                   "\[RightDoubleBracket]"}], ",", "elevator2Height", ",", 
+                  "elevator2State", ",", "queue2"}], "}"}], ",", 
+                RowBox[{"{", 
+                 RowBox[{
+                  RowBox[{
+                  "callqueue", "\[LeftDoubleBracket]", "i", 
+                   "\[RightDoubleBracket]"}], ",", "elevator3Height", ",", 
+                  "elevator3State", ",", "queue3"}], "}"}]}], "}"}]}], ",", 
+             RowBox[{"{", 
+              RowBox[{"i", ",", "1", ",", 
+               RowBox[{"Length", "[", "callqueue", "]"}]}], "}"}]}], "]"}]}], 
+          ";", "\[IndentingNewLine]", 
+          RowBox[{"callqueueTimeCostMin", "=", 
+           RowBox[{"Min", "/@", "callqueueTimeCost"}]}], ";", 
+          "\[IndentingNewLine]", 
+          RowBox[{"Map", "[", "\[IndentingNewLine]", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"If", "[", 
+              RowBox[{
+               RowBox[{
+                RowBox[{
+                 RowBox[{"callqueueTimeCost", "\[LeftDoubleBracket]", 
+                  RowBox[{"#", ",", "1"}], "\[RightDoubleBracket]"}], "==", 
+                 RowBox[{
+                 "callqueueTimeCostMin", "\[LeftDoubleBracket]", "#", 
+                  "\[RightDoubleBracket]"}]}], "&&", 
+                RowBox[{
+                 RowBox[{
+                 "callqueueTimeCostMin", "\[LeftDoubleBracket]", "#", 
+                  "\[RightDoubleBracket]"}], "\[NotEqual]", "999"}]}], ",", 
+               RowBox[{"queue1", "=", 
+                RowBox[{"Join", "[", 
+                 RowBox[{"queue1", ",", 
+                  RowBox[{"callqueue", "\[LeftDoubleBracket]", 
+                   RowBox[{"#", ",", 
+                    RowBox[{"{", 
+                    RowBox[{"1", ",", "2"}], "}"}]}], 
+                   "\[RightDoubleBracket]"}]}], "]"}]}], ",", 
+               "\[IndentingNewLine]", 
+               RowBox[{"If", "[", 
+                RowBox[{
+                 RowBox[{
+                  RowBox[{
+                   RowBox[{"callqueueTimeCost", "\[LeftDoubleBracket]", 
+                    RowBox[{"#", ",", "2"}], "\[RightDoubleBracket]"}], "==", 
+                   RowBox[{
+                   "callqueueTimeCostMin", "\[LeftDoubleBracket]", "#", 
+                    "\[RightDoubleBracket]"}]}], "&&", 
+                  RowBox[{
+                   RowBox[{
+                   "callqueueTimeCostMin", "\[LeftDoubleBracket]", "#", 
+                    "\[RightDoubleBracket]"}], "\[NotEqual]", "999"}]}], ",", 
+                 RowBox[{"queue2", "=", 
+                  RowBox[{"Join", "[", 
+                   RowBox[{"queue2", ",", 
+                    RowBox[{"callqueue", "\[LeftDoubleBracket]", 
+                    RowBox[{"#", ",", 
+                    RowBox[{"{", 
+                    RowBox[{"1", ",", "2"}], "}"}]}], 
+                    "\[RightDoubleBracket]"}]}], "]"}]}], ",", 
+                 "\[IndentingNewLine]", 
+                 RowBox[{"If", "[", 
+                  RowBox[{
+                   RowBox[{
+                    RowBox[{
+                    "callqueueTimeCostMin", "\[LeftDoubleBracket]", "#", 
+                    "\[RightDoubleBracket]"}], "\[NotEqual]", "999"}], ",", 
+                   RowBox[{"queue3", "=", 
+                    RowBox[{"Join", "[", 
+                    RowBox[{"queue3", ",", 
+                    RowBox[{"callqueue", "\[LeftDoubleBracket]", 
+                    RowBox[{"#", ",", 
+                    RowBox[{"{", 
+                    RowBox[{"1", ",", "2"}], "}"}]}], 
+                    "\[RightDoubleBracket]"}]}], "]"}]}]}], "]"}]}], "]"}]}], 
+              "]"}], "&"}], ",", "\[IndentingNewLine]", 
+            RowBox[{"Range", "[", 
+             RowBox[{"Length", "[", "callqueue", "]"}], "]"}]}], 
+           "\[IndentingNewLine]", "]"}], ";", "\[IndentingNewLine]", 
+          RowBox[{"droplist", "=", 
+           RowBox[{"Select", "[", 
+            RowBox[{
+             RowBox[{"Range", "[", 
+              RowBox[{"Length", "[", "callqueue", "]"}], "]"}], ",", 
+             RowBox[{
+              RowBox[{
+               RowBox[{
+               "callqueueTimeCostMin", "\[LeftDoubleBracket]", "#", 
+                "\[RightDoubleBracket]"}], "\[NotEqual]", "999"}], "&"}]}], 
+            "]"}]}], ";", "\[IndentingNewLine]", 
+          RowBox[{"callqueue", "=", 
+           RowBox[{"Delete", "[", 
+            RowBox[{"callqueue", ",", 
+             RowBox[{"List", "/@", "droplist"}]}], "]"}]}], ";", 
+          "\[IndentingNewLine]", 
+          RowBox[{"queue1", "=", 
+           RowBox[{"DeleteDuplicates", "[", "queue1", "]"}]}], ";", 
+          "\[IndentingNewLine]", 
+          RowBox[{"queue2", "=", 
+           RowBox[{"DeleteDuplicates", "[", "queue2", "]"}]}], ";", 
+          "\[IndentingNewLine]", 
+          RowBox[{"queue3", "=", 
+           RowBox[{"DeleteDuplicates", "[", "queue3", "]"}]}], ";"}]}], 
+        "\[IndentingNewLine]", "]"}], ";", "\[IndentingNewLine]", 
+       RowBox[{"queue1", " ", "=", 
+        RowBox[{"Which", "[", "\[IndentingNewLine]", 
+         RowBox[{
+          RowBox[{"elevator1State", "\[Equal]", "$UP"}], ",", 
+          RowBox[{"Sort", "[", "queue1", "]"}], ",", "\[IndentingNewLine]", 
+          RowBox[{"elevator1State", "\[Equal]", "$DOWN"}], ",", 
+          RowBox[{"Sort", "[", 
+           RowBox[{"queue1", ",", "Greater"}], "]"}], ",", 
+          "\[IndentingNewLine]", 
+          RowBox[{"elevator1State", "\[Equal]", "$IDLE"}], ",", "queue1"}], 
+         "\[IndentingNewLine]", "]"}]}], ";", "\[IndentingNewLine]", 
+       RowBox[{"queue2", " ", "=", 
+        RowBox[{"Which", "[", "\[IndentingNewLine]", 
+         RowBox[{
+          RowBox[{"elevator2State", "\[Equal]", "$UP"}], ",", 
+          RowBox[{"Sort", "[", "queue2", "]"}], ",", "\[IndentingNewLine]", 
+          RowBox[{"elevator2State", "\[Equal]", "$DOWN"}], ",", 
+          RowBox[{"Sort", "[", 
+           RowBox[{"queue2", ",", "Greater"}], "]"}], ",", 
+          "\[IndentingNewLine]", 
+          RowBox[{"elevator2State", "\[Equal]", "$IDLE"}], ",", "queue2"}], 
+         "\[IndentingNewLine]", "]"}]}], ";", "\[IndentingNewLine]", 
+       RowBox[{"queue3", " ", "=", 
+        RowBox[{"Which", "[", "\[IndentingNewLine]", 
+         RowBox[{
+          RowBox[{"elevator3State", "\[Equal]", "$UP"}], ",", 
+          RowBox[{"Sort", "[", "queue3", "]"}], ",", "\[IndentingNewLine]", 
+          RowBox[{"elevator3State", "\[Equal]", "$DOWN"}], ",", 
+          RowBox[{"Sort", "[", 
+           RowBox[{"queue3", ",", "Greater"}], "]"}], ",", 
+          "\[IndentingNewLine]", 
+          RowBox[{"elevator3State", "\[Equal]", "$IDLE"}], ",", "queue3"}], 
+         "\[IndentingNewLine]", "]"}]}], ";"}]}], "\[IndentingNewLine]", 
+     "]"}]}], ";"}], "\[IndentingNewLine]", "\[IndentingNewLine]", 
+  RowBox[{"(*", " ", 
+   RowBox[{"Elevator", " ", "group", " ", "operation"}], " ", 
+   "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"elevatorSystem", "[", "t_", "]"}], ":=", 
+    RowBox[{"Module", "[", 
+     RowBox[{
+      RowBox[{"{", "}"}], ",", "\[IndentingNewLine]", 
+      RowBox[{
+       RowBox[{"If", "[", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"Length", "[", "queue1", "]"}], ">", "0"}], ",", 
+         "\[IndentingNewLine]", 
+         RowBox[{
+          RowBox[{"Which", "[", "\[IndentingNewLine]", 
+           RowBox[{
+            RowBox[{"elevator1OperationState", "\[Equal]", "$ARRIVE"}], ",", 
+            RowBox[{
+             RowBox[{"dooropentime1", "+=", "1"}], ";", 
+             RowBox[{"If", "[", 
+              RowBox[{
+               RowBox[{"dooropentime1", "\[Equal]", "$DOOROPENTIME"}], ",", 
+               "\[IndentingNewLine]", 
+               RowBox[{
+                RowBox[{"door1", "=", "$CLOSED"}], ";", 
+                RowBox[{"dooropentime1", "=", "0"}], ";", 
+                RowBox[{"elevator1State", "=", "$IDLE"}], ";", 
+                RowBox[{"elevator1OperationState", "=", "$NORMAL"}], ";", 
+                RowBox[{"queue1", "=", 
+                 RowBox[{"Drop", "[", 
+                  RowBox[{"queue1", ",", "1"}], "]"}]}], ";"}]}], "]"}], 
+             ";"}], ",", "\[IndentingNewLine]", 
+            RowBox[{"elevator1State", "\[Equal]", "$UP"}], ",", 
+            RowBox[{
+             RowBox[{"elevator1Height", "+=", "$SPEED"}], ";", 
+             RowBox[{"If", "[", 
+              RowBox[{
+               RowBox[{"elevator1Height", "\[Equal]", 
+                RowBox[{"First", "[", "queue1", "]"}]}], ",", 
+               "\[IndentingNewLine]", 
+               RowBox[{
+                RowBox[{"elevator1OperationState", "=", "$ARRIVE"}], ";", 
+                RowBox[{"door1", "=", "$OPEN"}], ";"}]}], "]"}], ";"}], ",", 
+            "\[IndentingNewLine]", 
+            RowBox[{"elevator1State", "\[Equal]", "$DOWN"}], ",", 
+            RowBox[{
+             RowBox[{"elevator1Height", "-=", "$SPEED"}], ";", 
+             RowBox[{"If", "[", 
+              RowBox[{
+               RowBox[{"elevator1Height", "\[Equal]", 
+                RowBox[{"First", "[", "queue1", "]"}]}], ",", 
+               "\[IndentingNewLine]", 
+               RowBox[{
+                RowBox[{"elevator1OperationState", "=", "$ARRIVE"}], ";", 
+                RowBox[{"door1", "=", "$OPEN"}], ";"}]}], "]"}], ";"}], ",", 
+            "\[IndentingNewLine]", 
+            RowBox[{"elevator1State", "\[Equal]", "$IDLE"}], ",", 
+            RowBox[{
+             RowBox[{"Which", "[", "\[IndentingNewLine]", 
+              RowBox[{
+               RowBox[{"elevator1Height", "\[Equal]", 
+                RowBox[{"First", "[", "queue1", "]"}]}], ",", 
+               RowBox[{
+                RowBox[{"elevator1OperationState", "=", "$ARRIVE"}], ";", 
+                RowBox[{"door1", "=", "$OPEN"}], ";"}], ",", 
+               "\[IndentingNewLine]", 
+               RowBox[{"elevator1Height", "<", 
+                RowBox[{"First", "[", "queue1", "]"}]}], ",", 
+               RowBox[{"elevator1State", "=", "$UP"}], ",", 
+               "\[IndentingNewLine]", 
+               RowBox[{"elevator1Height", ">", 
+                RowBox[{"First", "[", "queue1", "]"}]}], ",", 
+               RowBox[{"elevator1State", "=", "$DOWN"}]}], 
+              "\[IndentingNewLine]", "]"}], ";"}]}], "\[IndentingNewLine]", 
+           "]"}], ";"}], ",", "\[IndentingNewLine]", 
+         RowBox[{
+          RowBox[{"elevator1State", "=", "$IDLE"}], ";"}]}], 
+        "\[IndentingNewLine]", "]"}], ";", "\[IndentingNewLine]", 
+       "\[IndentingNewLine]", 
+       RowBox[{"If", "[", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"Length", "[", "queue2", "]"}], ">", "0"}], ",", 
+         "\[IndentingNewLine]", 
+         RowBox[{
+          RowBox[{"Which", "[", "\[IndentingNewLine]", 
+           RowBox[{
+            RowBox[{"elevator2OperationState", "\[Equal]", "$ARRIVE"}], ",", 
+            RowBox[{
+             RowBox[{"dooropentime2", "+=", "1"}], ";", 
+             RowBox[{"If", "[", 
+              RowBox[{
+               RowBox[{"dooropentime2", "\[Equal]", "$DOOROPENTIME"}], ",", 
+               "\[IndentingNewLine]", 
+               RowBox[{
+                RowBox[{"door2", "=", "$CLOSED"}], ";", 
+                RowBox[{"dooropentime2", "=", "0"}], ";", 
+                RowBox[{"elevator2State", "=", "$IDLE"}], ";", 
+                RowBox[{"elevator2OperationState", "=", "$NORMAL"}], ";", 
+                RowBox[{"queue2", "=", 
+                 RowBox[{"Drop", "[", 
+                  RowBox[{"queue2", ",", "1"}], "]"}]}], ";"}]}], "]"}], 
+             ";"}], ",", "\[IndentingNewLine]", 
+            RowBox[{"elevator2State", "\[Equal]", "$UP"}], ",", 
+            RowBox[{
+             RowBox[{"elevator2Height", "+=", "$SPEED"}], ";", 
+             RowBox[{"If", "[", 
+              RowBox[{
+               RowBox[{"elevator2Height", "\[Equal]", 
+                RowBox[{"First", "[", "queue2", "]"}]}], ",", 
+               "\[IndentingNewLine]", 
+               RowBox[{
+                RowBox[{"elevator2OperationState", "=", "$ARRIVE"}], ";", 
+                RowBox[{"door2", "=", "$OPEN"}], ";"}]}], "]"}], ";"}], ",", 
+            "\[IndentingNewLine]", 
+            RowBox[{"elevator2State", "\[Equal]", "$DOWN"}], ",", 
+            RowBox[{
+             RowBox[{"elevator2Height", "-=", "$SPEED"}], ";", 
+             RowBox[{"If", "[", 
+              RowBox[{
+               RowBox[{"elevator2Height", "\[Equal]", 
+                RowBox[{"First", "[", "queue2", "]"}]}], ",", 
+               "\[IndentingNewLine]", 
+               RowBox[{
+                RowBox[{"elevator2OperationState", "=", "$ARRIVE"}], ";", 
+                RowBox[{"door2", "=", "$OPEN"}], ";"}]}], "]"}], ";"}], ",", 
+            "\[IndentingNewLine]", 
+            RowBox[{"elevator2State", "\[Equal]", "$IDLE"}], ",", 
+            RowBox[{
+             RowBox[{"Which", "[", "\[IndentingNewLine]", 
+              RowBox[{
+               RowBox[{"elevator2Height", "\[Equal]", 
+                RowBox[{"First", "[", "queue2", "]"}]}], ",", 
+               RowBox[{
+                RowBox[{"elevator2OperationState", "=", "$ARRIVE"}], ";", 
+                RowBox[{"door2", "=", "$OPEN"}], ";"}], ",", 
+               "\[IndentingNewLine]", 
+               RowBox[{"elevator2Height", "<", 
+                RowBox[{"First", "[", "queue2", "]"}]}], ",", 
+               RowBox[{"elevator2State", "=", "$UP"}], ",", 
+               "\[IndentingNewLine]", 
+               RowBox[{"elevator2Height", ">", 
+                RowBox[{"First", "[", "queue2", "]"}]}], ",", 
+               RowBox[{"elevator2State", "=", "$DOWN"}]}], 
+              "\[IndentingNewLine]", "]"}], ";"}]}], "\[IndentingNewLine]", 
+           "]"}], ";"}], ",", "\[IndentingNewLine]", 
+         RowBox[{
+          RowBox[{"elevator2State", "=", "$IDLE"}], ";"}]}], 
+        "\[IndentingNewLine]", "]"}], ";", "\[IndentingNewLine]", 
+       "\[IndentingNewLine]", 
+       RowBox[{"If", "[", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"Length", "[", "queue3", "]"}], ">", "0"}], ",", 
+         "\[IndentingNewLine]", 
+         RowBox[{
+          RowBox[{"Which", "[", "\[IndentingNewLine]", 
+           RowBox[{
+            RowBox[{"elevator3OperationState", "\[Equal]", "$ARRIVE"}], ",", 
+            RowBox[{
+             RowBox[{"dooropentime3", "+=", "1"}], ";", 
+             RowBox[{"If", "[", 
+              RowBox[{
+               RowBox[{"dooropentime3", "\[Equal]", "$DOOROPENTIME"}], ",", 
+               "\[IndentingNewLine]", 
+               RowBox[{
+                RowBox[{"door3", "=", "$CLOSED"}], ";", 
+                RowBox[{"dooropentime3", "=", "0"}], ";", 
+                RowBox[{"elevator3State", "=", "$IDLE"}], ";", 
+                RowBox[{"elevator3OperationState", "=", "$NORMAL"}], ";", 
+                RowBox[{"queue3", "=", 
+                 RowBox[{"Drop", "[", 
+                  RowBox[{"queue3", ",", "1"}], "]"}]}], ";"}]}], "]"}], 
+             ";"}], ",", "\[IndentingNewLine]", 
+            RowBox[{"elevator3State", "\[Equal]", "$UP"}], ",", 
+            RowBox[{
+             RowBox[{"elevator3Height", "+=", "$SPEED"}], ";", 
+             RowBox[{"If", "[", 
+              RowBox[{
+               RowBox[{"elevator3Height", "\[Equal]", 
+                RowBox[{"First", "[", "queue3", "]"}]}], ",", 
+               "\[IndentingNewLine]", 
+               RowBox[{
+                RowBox[{"elevator3OperationState", "=", "$ARRIVE"}], ";", 
+                RowBox[{"door3", "=", "$OPEN"}], ";"}]}], "]"}], ";"}], ",", 
+            "\[IndentingNewLine]", 
+            RowBox[{"elevator3State", "\[Equal]", "$DOWN"}], ",", 
+            RowBox[{
+             RowBox[{"elevator3Height", "-=", "$SPEED"}], ";", 
+             RowBox[{"If", "[", 
+              RowBox[{
+               RowBox[{"elevator3Height", "\[Equal]", 
+                RowBox[{"First", "[", "queue3", "]"}]}], ",", 
+               "\[IndentingNewLine]", 
+               RowBox[{
+                RowBox[{"elevator3OperationState", "=", "$ARRIVE"}], ";", 
+                RowBox[{"door3", "=", "$OPEN"}], ";"}]}], "]"}], ";"}], ",", 
+            "\[IndentingNewLine]", 
+            RowBox[{"elevator3State", "\[Equal]", "$IDLE"}], ",", 
+            RowBox[{
+             RowBox[{"Which", "[", "\[IndentingNewLine]", 
+              RowBox[{
+               RowBox[{"elevator3Height", "\[Equal]", 
+                RowBox[{"First", "[", "queue3", "]"}]}], ",", 
+               RowBox[{
+                RowBox[{"elevator3OperationState", "=", "$ARRIVE"}], ";", 
+                RowBox[{"door3", "=", "$OPEN"}], ";"}], ",", 
+               "\[IndentingNewLine]", 
+               RowBox[{"elevator3Height", "<", 
+                RowBox[{"First", "[", "queue3", "]"}]}], ",", 
+               RowBox[{"elevator3State", "=", "$UP"}], ",", 
+               "\[IndentingNewLine]", 
+               RowBox[{"elevator3Height", ">", 
+                RowBox[{"First", "[", "queue3", "]"}]}], ",", 
+               RowBox[{"elevator3State", "=", "$DOWN"}]}], 
+              "\[IndentingNewLine]", "]"}], ";"}]}], "\[IndentingNewLine]", 
+           "]"}], ";"}], ",", "\[IndentingNewLine]", 
+         RowBox[{
+          RowBox[{"elevator3State", "=", "$IDLE"}], ";"}]}], 
+        "\[IndentingNewLine]", "]"}], ";"}]}], "\[IndentingNewLine]", "]"}]}],
+    ";"}], "\[IndentingNewLine]", "\[IndentingNewLine]", 
+  RowBox[{"(*", " ", 
+   RowBox[{
+    RowBox[{"Initialization", " ", "code", " ", "for", " ", "3"}], "-", 
+    RowBox[{
+    "D", " ", "modeling", " ", "of", " ", "the", " ", "elevator", " ", 
+     "system"}]}], " ", "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"building", "=", 
+   RowBox[{"Cuboid", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", "2"}], ",", "2", ",", "0"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"8", ",", 
+       RowBox[{"-", "2"}], ",", "10.1"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"lobby", "=", 
+   RowBox[{"Cuboid", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", "2"}], ",", "2", ",", 
+       RowBox[{"-", ".1"}]}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"8", ",", 
+       RowBox[{"-", "2"}], ",", ".05"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"floor1", "=", 
+   RowBox[{"Cuboid", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", "2"}], ",", "2", ",", "1.15"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"8", ",", 
+       RowBox[{"-", "2"}], ",", "1.2"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"floor2", "=", 
+   RowBox[{"Cuboid", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", "2"}], ",", "2", ",", "2.35"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"8", ",", 
+       RowBox[{"-", "2"}], ",", "2.4"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"floor3", "=", 
+   RowBox[{"Cuboid", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", "2"}], ",", "2", ",", "3.55"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"8", ",", 
+       RowBox[{"-", "2"}], ",", "3.6"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"floor4", "=", 
+   RowBox[{"Cuboid", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", "2"}], ",", "2", ",", "4.75"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"8", ",", 
+       RowBox[{"-", "2"}], ",", "4.8"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"floor5", "=", 
+   RowBox[{"Cuboid", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", "2"}], ",", "2", ",", "5.95"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"8", ",", 
+       RowBox[{"-", "2"}], ",", "6.0"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"floor6", "=", 
+   RowBox[{"Cuboid", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", "2"}], ",", "2", ",", "7.15"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"8", ",", 
+       RowBox[{"-", "2"}], ",", "7.2"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"floor7", "=", 
+    RowBox[{"Cuboid", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"-", "2"}], ",", "2", ",", "8.35"}], "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{"8", ",", 
+        RowBox[{"-", "2"}], ",", "8.4"}], "}"}]}], "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"elevator1shaftside1", "=", 
+   RowBox[{"Cuboid", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", ".6"}], ",", ".2", ",", "0"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", ".5"}], ",", 
+       RowBox[{"-", "1.2"}], ",", "9.99"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"elevator1shaftside2", "=", 
+   RowBox[{"Cuboid", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"1.5", ",", ".2", ",", "0"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"1.6", ",", 
+       RowBox[{"-", "1.2"}], ",", "9.99"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"elevator1shaftside3", "=", 
+   RowBox[{"Cuboid", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", ".5"}], ",", ".2", ",", "0"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{".1", ",", ".1", ",", "9.99"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"elevator1shaftside4", "=", 
+   RowBox[{"Cuboid", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", ".5"}], ",", 
+       RowBox[{"-", "1.1"}], ",", "0"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{".1", ",", 
+       RowBox[{"-", "1.2"}], ",", "9.99"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"counterbalance1", "=", 
+   RowBox[{"{", 
+    RowBox[{"Red", ",", 
+     RowBox[{"Cuboid", "[", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"-", ".2"}], ",", "0", ",", "9.8"}], "}"}], ",", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"-", ".3"}], ",", 
+         RowBox[{"-", "1"}], ",", "9"}], "}"}]}], "]"}]}], "}"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"cableacross1", "=", 
+   RowBox[{"Line", "[", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{".5", ",", 
+        RowBox[{"-", ".5"}], ",", "10"}], "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{"0", ",", 
+        RowBox[{"-", ".5"}], ",", "10"}], "}"}]}], "}"}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"cable2guide1", "=", 
+   RowBox[{"{", 
+    RowBox[{"Black", ",", 
+     RowBox[{"Cuboid", "[", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"0", ",", 
+          RowBox[{"-", ".4"}], ",", "9.9"}], "}"}], ",", 
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{"-", ".2"}], ",", 
+          RowBox[{"-", ".6"}], ",", "0"}], "}"}]}], "}"}], "]"}]}], "}"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"pulley11", "=", 
+   RowBox[{"Cylinder", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{".5", ",", 
+         RowBox[{"-", ".45"}], ",", "9.9"}], "}"}], ",", 
+       RowBox[{"{", 
+        RowBox[{".5", ",", 
+         RowBox[{"-", ".55"}], ",", "9.9"}], "}"}]}], "}"}], ",", ".1"}], 
+    "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"pulley12", "=", 
+   RowBox[{"Cylinder", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"0", ",", 
+         RowBox[{"-", ".45"}], ",", "9.9"}], "}"}], ",", 
+       RowBox[{"{", 
+        RowBox[{"0", ",", 
+         RowBox[{"-", ".55"}], ",", "9.9"}], "}"}]}], "}"}], ",", ".1"}], 
+    "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"elevator1floor", "=", 
+   RowBox[{"{", 
+    RowBox[{"Orange", ",", 
+     RowBox[{"Cuboid", "[", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"0", ",", ".1", ",", "0"}], "}"}], ",", 
+       RowBox[{"{", 
+        RowBox[{"1", ",", 
+         RowBox[{"-", "1.1"}], ",", 
+         RowBox[{"-", ".1"}]}], "}"}]}], "]"}]}], "}"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"elevator1roof", "=", 
+   RowBox[{"{", 
+    RowBox[{"Orange", ",", 
+     RowBox[{"Cuboid", "[", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"0", ",", ".1", ",", "1"}], "}"}], ",", 
+       RowBox[{"{", 
+        RowBox[{"1", ",", 
+         RowBox[{"-", "1.1"}], ",", "1.1"}], "}"}]}], "]"}]}], "}"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"elevator1leftwall", "=", 
+   RowBox[{"{", 
+    RowBox[{"Orange", ",", 
+     RowBox[{"Cuboid", "[", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"0", ",", "0", ",", "0"}], "}"}], ",", 
+       RowBox[{"{", 
+        RowBox[{".1", ",", 
+         RowBox[{"-", "1"}], ",", "1"}], "}"}]}], "]"}]}], "}"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"elevator1rightwall", "=", 
+   RowBox[{"{", 
+    RowBox[{"Orange", ",", 
+     RowBox[{"Cuboid", "[", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"1", ",", "0", ",", "0"}], "}"}], ",", 
+       RowBox[{"{", 
+        RowBox[{".9", ",", 
+         RowBox[{"-", "1"}], ",", "1"}], "}"}]}], "]"}]}], "}"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  StyleBox[
+   RowBox[{
+    RowBox[{"backdoor1", "=", 
+     RowBox[{"{", 
+      RowBox[{"Gray", ",", 
+       RowBox[{"Translate", "[", 
+        RowBox[{
+         RowBox[{"Cuboid", "[", 
+          RowBox[{
+           RowBox[{"{", 
+            RowBox[{"0", ",", "0", ",", "0"}], "}"}], ",", 
+           RowBox[{"{", 
+            RowBox[{".5", ",", ".1", ",", "1"}], "}"}]}], "]"}], ",", 
+         RowBox[{"{", 
+          RowBox[{"0", ",", "0", ",", "0"}], "}"}]}], "]"}]}], "}"}]}], ";"}],
+   Background->None], "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"elevator2shaftside1", "=", 
+   RowBox[{"Translate", "[", 
+    RowBox[{"elevator1shaftside1", ",", 
+     RowBox[{"{", 
+      RowBox[{"3", ",", "0", ",", "0"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"elevator2shaftside2", "=", 
+   RowBox[{"Translate", "[", 
+    RowBox[{"elevator1shaftside2", ",", 
+     RowBox[{"{", 
+      RowBox[{"3", ",", "0", ",", "0"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"elevator2shaftside3", "=", 
+   RowBox[{"Translate", "[", 
+    RowBox[{"elevator1shaftside3", ",", 
+     RowBox[{"{", 
+      RowBox[{"3", ",", "0", ",", "0"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"elevator2shaftside4", "=", 
+   RowBox[{"Translate", "[", 
+    RowBox[{"elevator1shaftside4", ",", 
+     RowBox[{"{", 
+      RowBox[{"3", ",", "0", ",", "0"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"counterbalance2", "=", 
+   RowBox[{"Translate", "[", 
+    RowBox[{"counterbalance1", ",", 
+     RowBox[{"{", 
+      RowBox[{"3", ",", "0", ",", "0"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"cableacross2", "=", 
+   RowBox[{"Translate", "[", 
+    RowBox[{"cableacross1", ",", 
+     RowBox[{"{", 
+      RowBox[{"3", ",", "0", ",", "0"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"cable2guide2", "=", 
+   RowBox[{"Translate", "[", 
+    RowBox[{"cable2guide1", ",", 
+     RowBox[{"{", 
+      RowBox[{"3", ",", "0", ",", "0"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"pulley21", "=", 
+   RowBox[{"Translate", "[", 
+    RowBox[{"pulley11", ",", 
+     RowBox[{"{", 
+      RowBox[{"3", ",", "0", ",", "0"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"pulley22", "=", 
+   RowBox[{"Translate", "[", 
+    RowBox[{"pulley12", ",", 
+     RowBox[{"{", 
+      RowBox[{"3", ",", "0", ",", "0"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"elevator2floor", "=", 
+   RowBox[{"Translate", "[", 
+    RowBox[{"elevator1floor", ",", 
+     RowBox[{"{", 
+      RowBox[{"3", ",", "0", ",", "0"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"elevator2roof", "=", 
+   RowBox[{"Translate", "[", 
+    RowBox[{"elevator1roof", ",", 
+     RowBox[{"{", 
+      RowBox[{"3", ",", "0", ",", "0"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"elevator2leftwall", "=", 
+   RowBox[{"Translate", "[", 
+    RowBox[{"elevator1leftwall", ",", 
+     RowBox[{"{", 
+      RowBox[{"3", ",", "0", ",", "0"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"elevator2rightwall", "=", 
+   RowBox[{"Translate", "[", 
+    RowBox[{"elevator1rightwall", ",", 
+     RowBox[{"{", 
+      RowBox[{"3", ",", "0", ",", "0"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  StyleBox[
+   RowBox[{
+    RowBox[{"backdoor2", "=", 
+     RowBox[{"{", 
+      RowBox[{"Gray", ",", 
+       RowBox[{"Translate", "[", 
+        RowBox[{
+         RowBox[{"Cuboid", "[", 
+          RowBox[{
+           RowBox[{"{", 
+            RowBox[{"3", ",", "0", ",", "0"}], "}"}], ",", 
+           RowBox[{"{", 
+            RowBox[{"3.5", ",", ".1", ",", "1"}], "}"}]}], "]"}], ",", 
+         RowBox[{"{", 
+          RowBox[{"0", ",", "0", ",", "0"}], "}"}]}], "]"}]}], "}"}]}], ";"}],
+   Background->None], "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"elevator3shaftside1", "=", 
+   RowBox[{"Translate", "[", 
+    RowBox[{"elevator1shaftside1", ",", 
+     RowBox[{"{", 
+      RowBox[{"6", ",", "0", ",", "0"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"elevator3shaftside2", "=", 
+   RowBox[{"Translate", "[", 
+    RowBox[{"elevator1shaftside2", ",", 
+     RowBox[{"{", 
+      RowBox[{"6", ",", "0", ",", "0"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"elevator3shaftside3", "=", 
+   RowBox[{"Translate", "[", 
+    RowBox[{"elevator1shaftside3", ",", 
+     RowBox[{"{", 
+      RowBox[{"6", ",", "0", ",", "0"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"elevator3shaftside4", "=", 
+   RowBox[{"Translate", "[", 
+    RowBox[{"elevator1shaftside4", ",", 
+     RowBox[{"{", 
+      RowBox[{"6", ",", "0", ",", "0"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"counterbalance3", "=", 
+   RowBox[{"Translate", "[", 
+    RowBox[{"counterbalance1", ",", 
+     RowBox[{"{", 
+      RowBox[{"6", ",", "0", ",", "0"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"cableacross3", "=", 
+   RowBox[{"Translate", "[", 
+    RowBox[{"cableacross1", ",", 
+     RowBox[{"{", 
+      RowBox[{"6", ",", "0", ",", "0"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"cable2guide3", "=", 
+   RowBox[{"Translate", "[", 
+    RowBox[{"cable2guide1", ",", 
+     RowBox[{"{", 
+      RowBox[{"6", ",", "0", ",", "0"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"pulley31", "=", 
+   RowBox[{"Translate", "[", 
+    RowBox[{"pulley11", ",", 
+     RowBox[{"{", 
+      RowBox[{"6", ",", "0", ",", "0"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"pulley32", "=", 
+   RowBox[{"Translate", "[", 
+    RowBox[{"pulley12", ",", 
+     RowBox[{"{", 
+      RowBox[{"6", ",", "0", ",", "0"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"elevator3floor", "=", 
+   RowBox[{"Translate", "[", 
+    RowBox[{"elevator1floor", ",", 
+     RowBox[{"{", 
+      RowBox[{"6", ",", "0", ",", "0"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"elevator3roof", "=", 
+   RowBox[{"Translate", "[", 
+    RowBox[{"elevator1roof", ",", 
+     RowBox[{"{", 
+      RowBox[{"6", ",", "0", ",", "0"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"elevator3leftwall", "=", 
+   RowBox[{"Translate", "[", 
+    RowBox[{"elevator1leftwall", ",", 
+     RowBox[{"{", 
+      RowBox[{"6", ",", "0", ",", "0"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"elevator3rightwall", "=", 
+   RowBox[{"Translate", "[", 
+    RowBox[{"elevator1rightwall", ",", 
+     RowBox[{"{", 
+      RowBox[{"6", ",", "0", ",", "0"}], "}"}]}], "]"}]}], ";", 
+  RowBox[{"backdoor3", "=", 
+   RowBox[{"{", 
+    RowBox[{"Gray", ",", 
+     RowBox[{"Translate", "[", 
+      RowBox[{
+       RowBox[{"Cuboid", "[", 
+        RowBox[{
+         RowBox[{"{", 
+          RowBox[{"6", ",", "0", ",", "0"}], "}"}], ",", 
+         RowBox[{"{", 
+          RowBox[{"6.5", ",", ".1", ",", "1"}], "}"}]}], "]"}], ",", 
+       RowBox[{"{", 
+        RowBox[{"0", ",", "0", ",", "0"}], "}"}]}], "]"}]}], "}"}]}], 
+  ";"}]}], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.689329383238756*^9, 3.689329443993986*^9}, {
+   3.689330332812828*^9, 3.689330346259081*^9}, {3.6893311360296345`*^9, 
+   3.6893311564188795`*^9}, {3.6893315733001685`*^9, 3.689331593794672*^9}, {
+   3.6893316459697456`*^9, 3.6893316462866173`*^9}, {3.689331991124172*^9, 
+   3.689332028433561*^9}, {3.6893388826246595`*^9, 3.689338894497493*^9}, {
+   3.689338933225648*^9, 3.6893389335570297`*^9}, {3.689339080907282*^9, 
+   3.68933911565377*^9}, {3.68937193445677*^9, 3.6893720402531233`*^9}, {
+   3.689372126563096*^9, 3.6893721766997194`*^9}, {3.689372268119018*^9, 
+   3.6893722685196133`*^9}, {3.689372445667864*^9, 3.6893726534433994`*^9}, {
+   3.689374736249011*^9, 3.689374737849708*^9}, {3.689377407177493*^9, 
+   3.6893774489736643`*^9}, {3.6893780982706037`*^9, 
+   3.6893781173272543`*^9}, {3.68937825855542*^9, 3.689378363607833*^9}, {
+   3.6893804764636345`*^9, 3.6893806162715187`*^9}, {3.6893813020343494`*^9, 
+   3.689381310315061*^9}, {3.689381351841938*^9, 3.6893813520578847`*^9}, {
+   3.6893815815920706`*^9, 3.6893819067507496`*^9}, {3.689381988208912*^9, 
+   3.6893820466820354`*^9}, {3.689382164316764*^9, 3.6893821772702775`*^9}, {
+   3.689382217204273*^9, 3.6893823598882923`*^9}, {3.6893824064915314`*^9, 
+   3.6893825747589784`*^9}, {3.6893854422043858`*^9, 3.689385454412511*^9}, {
+   3.689385502385027*^9, 3.689385533995307*^9}, 3.6894042507108884`*^9, {
+   3.689404295353324*^9, 3.6894043086011953`*^9}, 3.689411769609783*^9, {
+   3.6894120137191772`*^9, 3.6894120851646657`*^9}, {3.6894124843821015`*^9, 
+   3.689412572581273*^9}, {3.689412607426303*^9, 3.6894126697849717`*^9}, {
+   3.6894129663027706`*^9, 3.6894129790223274`*^9}, {3.6894130131766043`*^9, 
+   3.6894130306627407`*^9}, {3.689416710917824*^9, 3.6894167161637316`*^9}, {
+   3.6894168358777657`*^9, 3.689416836008987*^9}, {3.6894181816459703`*^9, 
+   3.68941818313028*^9}, {3.6894183682538223`*^9, 3.6894183716863136`*^9}, {
+   3.68941849091953*^9, 3.6894184912720356`*^9}, {3.6894185474040484`*^9, 
+   3.6894185476727743`*^9}, {3.6894187671347885`*^9, 
+   3.6894187896021643`*^9}, {3.6894188571425076`*^9, 3.689418872175379*^9}, 
+   3.689418917293209*^9, {3.689419096236884*^9, 3.6894191044493876`*^9}, {
+   3.689419157508234*^9, 3.689419157745913*^9}, {3.689420223534135*^9, 
+   3.6894202551644497`*^9}, {3.689483518634261*^9, 3.6894835214522934`*^9}, {
+   3.6894970805916615`*^9, 3.6894971102975645`*^9}, {3.68949714799396*^9, 
+   3.6894971524976864`*^9}, {3.689497377715539*^9, 3.6894973808635826`*^9}, {
+   3.6894985183716626`*^9, 3.6894985271985416`*^9}, {3.6894992135630307`*^9, 
+   3.6894992652344894`*^9}, {3.6895008641177235`*^9, 
+   3.6895008694557667`*^9}, {3.6895014822936096`*^9, 3.689501518098875*^9}, {
+   3.689503839177921*^9, 3.689503841110324*^9}, {3.68950763023108*^9, 
+   3.68950763351711*^9}, {3.689553754887038*^9, 3.6895537727912846`*^9}, {
+   3.6895596575363154`*^9, 3.6895596599567785`*^9}, {3.689559690752601*^9, 
+   3.689559690900264*^9}, 3.6895607547684755`*^9, {3.689561931072584*^9, 
+   3.689561949662734*^9}, {3.689562137639429*^9, 3.6895621507301955`*^9}, {
+   3.6895622855980625`*^9, 3.6895624319382534`*^9}, {3.689562507454469*^9, 
+   3.6895625188164577`*^9}, {3.6895625788407*^9, 3.689562609039216*^9}, {
+   3.6895626575852404`*^9, 3.689562661834231*^9}, 3.689563785658866*^9, 
+   3.689563853810527*^9, {3.68956390570193*^9, 3.689563933815826*^9}, {
+   3.689565321616791*^9, 3.689565328893581*^9}, {3.6895653613819017`*^9, 
+   3.689565382426628*^9}, 3.689565721664609*^9, {3.6895870096874695`*^9, 
+   3.689587038263811*^9}, {3.6895871866051264`*^9, 3.689587189974937*^9}, {
+   3.689587226058005*^9, 3.689587297447751*^9}, {3.689587353666371*^9, 
+   3.689587520757373*^9}, {3.689587584724209*^9, 3.689587603500979*^9}, 
+   3.6895877904842596`*^9, {3.6895884677822275`*^9, 3.6895885222866025`*^9}, {
+   3.689588564543545*^9, 3.6895885815356307`*^9}, {3.689588691969369*^9, 
+   3.6895887269853287`*^9}, {3.689588781793151*^9, 3.6895888101783233`*^9}, {
+   3.6895888469979343`*^9, 3.689588872535223*^9}, {3.6895889025615435`*^9, 
+   3.6895889255599303`*^9}, {3.689588957865378*^9, 3.689589039142782*^9}, {
+   3.6895891440644355`*^9, 3.6895892534852257`*^9}, {3.68958947708855*^9, 
+   3.689589499574936*^9}, {3.689590175252638*^9, 3.689590231201731*^9}, {
+   3.6895903214472837`*^9, 3.689590511987384*^9}, {3.689590652061138*^9, 
+   3.689590913053382*^9}, {3.6895909527481556`*^9, 3.6895910932100177`*^9}, {
+   3.689591124589861*^9, 3.689591165180235*^9}, {3.689591257828034*^9, 
+   3.689591354800132*^9}, {3.689591431002396*^9, 3.689591432062026*^9}, {
+   3.6895914960911217`*^9, 3.6895915807708826`*^9}, {3.689591615294155*^9, 
+   3.6895916383112373`*^9}, {3.689591686810595*^9, 3.6895916948544235`*^9}, {
+   3.689591860557931*^9, 3.6895922602740545`*^9}, {3.6895923480592666`*^9, 
+   3.6895924283695736`*^9}, {3.6895925257632513`*^9, 3.689592569069265*^9}, {
+   3.689592615178279*^9, 3.6895926385730596`*^9}, {3.6895926773422413`*^9, 
+   3.6895930988806705`*^9}, {3.6895955458961196`*^9, 3.689595944325262*^9}, 
+   3.6895961943162603`*^9, {3.6895963561811705`*^9, 3.6895964925160923`*^9}, {
+   3.689596551787716*^9, 3.6895965773363943`*^9}, {3.6895966390735245`*^9, 
+   3.6895966443441677`*^9}, {3.6895967451542606`*^9, 
+   3.6895967729658947`*^9}, {3.689597012975641*^9, 3.6895970237471504`*^9}, {
+   3.6895970779056015`*^9, 3.689597263217677*^9}, {3.6895973604225016`*^9, 
+   3.6895974140370827`*^9}, {3.6895974946603546`*^9, 
+   3.6895974964453907`*^9}, {3.689597766782485*^9, 3.689597770373519*^9}, {
+   3.6895978287256527`*^9, 3.689597899301816*^9}, {3.6895979902649565`*^9, 
+   3.6895980059731956`*^9}, {3.689598278997754*^9, 3.6895983593725166`*^9}, {
+   3.6895984467834964`*^9, 3.6895984987444997`*^9}, {3.6895987317347827`*^9, 
+   3.689598771803937*^9}, {3.689626143205063*^9, 3.6896261670621324`*^9}, {
+   3.6896553051398287`*^9, 3.6896553273184805`*^9}, {3.6901434318423414`*^9, 
+   3.690143437593818*^9}, {3.6901435171645517`*^9, 3.6901435886730103`*^9}, {
+   3.690143646796363*^9, 3.6901436927998695`*^9}, {3.690143771995798*^9, 
+   3.690143811608671*^9}, {3.690144125955995*^9, 3.69014413437178*^9}, 
+   3.6901442491263113`*^9, 3.690144407834292*^9, {3.6901444441444573`*^9, 
+   3.690144508209273*^9}, {3.690341878694642*^9, 3.6903418877031527`*^9}, {
+   3.6903419709404836`*^9, 3.690341995097573*^9}, {3.6903420523681736`*^9, 
+   3.6903421205462723`*^9}, {3.6903421931692142`*^9, 3.690342220485688*^9}, {
+   3.6903422599604278`*^9, 3.69034226247031*^9}, {3.690342493920546*^9, 
+   3.6903425326058607`*^9}, {3.690342563575695*^9, 3.690342618831396*^9}, {
+   3.6903428022894*^9, 3.690342825713564*^9}, {3.690342861848541*^9, 
+   3.690342884720624*^9}, {3.6903433926149464`*^9, 3.6903434798433313`*^9}, {
+   3.6903436008688364`*^9, 3.6903436494213986`*^9}, {3.690343789065993*^9, 
+   3.690343793893647*^9}, {3.6903583467190037`*^9, 3.690358362918316*^9}, {
+   3.6903584583019776`*^9, 3.69035859857995*^9}, {3.690358635632583*^9, 
+   3.690358821621962*^9}, {3.690358890269086*^9, 3.6903588943155785`*^9}, {
+   3.6903589652441025`*^9, 3.6903589963026457`*^9}, {3.6903590279340057`*^9, 
+   3.690359034064344*^9}, {3.690359081365716*^9, 3.6903592558247876`*^9}, {
+   3.6903592954484377`*^9, 3.6903593430217175`*^9}, {3.6903593929983697`*^9, 
+   3.6903594293590183`*^9}, {3.6903595475422306`*^9, 
+   3.6903595802910304`*^9}, {3.690359630156091*^9, 3.690359631177602*^9}, {
+   3.690360012024227*^9, 3.690360071585288*^9}, {3.6903604932908864`*^9, 
+   3.690360507849081*^9}, {3.6903605379749374`*^9, 3.6903605420023937`*^9}, {
+   3.690360959177414*^9, 3.6903609595538006`*^9}, {3.6903633540681705`*^9, 
+   3.690363408054438*^9}, {3.690363498657905*^9, 3.690363504980695*^9}, {
+   3.6903635988084517`*^9, 3.6903635997098265`*^9}, {3.690363961026546*^9, 
+   3.6903640542675457`*^9}, {3.690364138473893*^9, 3.6903641467054214`*^9}, {
+   3.690364331790577*^9, 3.690364348971404*^9}, {3.690364439996871*^9, 
+   3.690364452170088*^9}, {3.6903681365991173`*^9, 3.6903681708190184`*^9}, {
+   3.6903703218320055`*^9, 3.690370387537307*^9}, {3.6903704337957363`*^9, 
+   3.6903704342741227`*^9}, {3.6903705735980244`*^9, 
+   3.6903707219315524`*^9}, {3.6903707535856667`*^9, 3.690370840012408*^9}, {
+   3.690370925367454*^9, 3.690370926667653*^9}, {3.690370960793778*^9, 
+   3.6903709664259467`*^9}, {3.6903710035262313`*^9, 
+   3.6903710922434235`*^9}, {3.690371129330429*^9, 3.6903711956536646`*^9}, {
+   3.6903712406247973`*^9, 3.6903712479409056`*^9}, {3.6903712950057273`*^9, 
+   3.6903713566685495`*^9}, {3.6903715045044117`*^9, 3.690371506136038*^9}, {
+   3.6903716230940886`*^9, 3.690371654301009*^9}, {3.6903718963242116`*^9, 
+   3.690371903618271*^9}, {3.690372110683481*^9, 3.690372122211094*^9}, {
+   3.6903723714757357`*^9, 3.690372378547846*^9}, {3.6903730847869253`*^9, 
+   3.6903730892247353`*^9}, {3.6903731726414337`*^9, 3.690373179141641*^9}, 
+   3.6903737255576563`*^9, {3.690374208963448*^9, 3.690374221453598*^9}, {
+   3.6903743996656246`*^9, 3.6903744534919667`*^9}, 3.6903747524543066`*^9, {
+   3.690374893209917*^9, 3.690374929932788*^9}, {3.690375272566744*^9, 
+   3.6903752885759525`*^9}, {3.690375497451132*^9, 3.6903756391755466`*^9}, {
+   3.6903763578827386`*^9, 3.690376361599123*^9}, {3.6903763958563967`*^9, 
+   3.6903764089061604`*^9}, {3.69037653837564*^9, 3.6903765826133513`*^9}, {
+   3.690376709403794*^9, 3.69037680390186*^9}, {3.690376841354386*^9, 
+   3.6903768710853453`*^9}, 3.690377023683592*^9, {3.6903770956599045`*^9, 
+   3.6903771330584216`*^9}, {3.6903772627220387`*^9, 3.690377265244966*^9}, 
+   3.690377348561034*^9, {3.690377421184123*^9, 3.6903774861302433`*^9}, 
+   3.6903776984430523`*^9, {3.690377728810276*^9, 3.6903777366974173`*^9}, {
+   3.6903777790972786`*^9, 3.6903777896216*^9}, {3.690378121760992*^9, 
+   3.6903781494507046`*^9}, {3.690378334352084*^9, 3.690378357932084*^9}, {
+   3.6903784186732397`*^9, 3.690378433999831*^9}, {3.690378494605049*^9, 
+   3.6903784954216022`*^9}, {3.6903785889424224`*^9, 3.690378589488879*^9}, {
+   3.690378652064434*^9, 3.690378661700468*^9}, {3.690378717533699*^9, 
+   3.6903787371564445`*^9}, {3.6903788044222064`*^9, 3.690378831785427*^9}, {
+   3.690378909904342*^9, 3.690378912043171*^9}, {3.690379082025217*^9, 
+   3.690379086959053*^9}, {3.690379140583847*^9, 3.690379148709284*^9}, {
+   3.69037923064342*^9, 3.6903792373498325`*^9}, {3.6903793003322597`*^9, 
+   3.69037938081059*^9}, {3.6903794168143177`*^9, 3.6903794217178297`*^9}, {
+   3.690379517858426*^9, 3.6903795314164357`*^9}, {3.6903796714906807`*^9, 
+   3.6903797054932733`*^9}, {3.6903797441719112`*^9, 
+   3.6903797464565897`*^9}, {3.6904123378253264`*^9, 3.690412366101017*^9}, {
+   3.690415517809182*^9, 3.6904156118404264`*^9}, {3.690415654296664*^9, 
+   3.6904156628970137`*^9}, {3.6904157898532515`*^9, 3.690415799224744*^9}, {
+   3.6904158642204943`*^9, 3.6904159447871237`*^9}, {3.6904160261391344`*^9, 
+   3.690416053607253*^9}, {3.6904162511116056`*^9, 3.6904163872693167`*^9}, {
+   3.690416518349283*^9, 3.6904165205271997`*^9}, {3.690416678291882*^9, 
+   3.690416774573841*^9}, 3.6904173941178274`*^9, 3.69041743873129*^9, {
+   3.6904178967004414`*^9, 3.690417913424038*^9}, {3.690508368711757*^9, 
+   3.690508374004583*^9}, {3.6905099712397647`*^9, 3.690509972894238*^9}, {
+   3.6905156498555937`*^9, 3.6905156516413493`*^9}, {3.6905978756070538`*^9, 
+   3.690597886002114*^9}},
+ CellID->200066314]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["", "ManipulateSection"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Manipulate", "[", "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"If", "[", 
+     RowBox[{
+      RowBox[{"IntegerQ", "[", "counter", "]"}], ",", 
+      RowBox[{
+       RowBox[{"t", "+=", "1"}], ";"}]}], "]"}], ";", "\[IndentingNewLine]", 
+    RowBox[{"sampleGenerator", "[", "t", "]"}], ";", "\[IndentingNewLine]", 
+    RowBox[{"elevatorAssign", "[", "t", "]"}], ";", "\[IndentingNewLine]", 
+    RowBox[{"elevatorSystem", "[", "t", "]"}], ";", 
+    StyleBox["\[IndentingNewLine]",
+     Background->None], "\[IndentingNewLine]", 
+    RowBox[{"cableup1", "=", 
+     RowBox[{"Line", "[", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{".6", ",", 
+          RowBox[{"-", ".499"}], ",", 
+          RowBox[{"elevator1Height", "+", "1"}]}], "}"}], ",", 
+        RowBox[{"{", 
+         RowBox[{".6", ",", 
+          RowBox[{"-", ".499"}], ",", "9.9"}], "}"}]}], "}"}], "]"}]}], ";", 
+    StyleBox["\[IndentingNewLine]",
+     Background->None], 
+    RowBox[{"doorleft1", 
+     StyleBox["=",
+      Background->None], 
+     StyleBox[
+      RowBox[{"{", 
+       RowBox[{"Gray", ",", 
+        RowBox[{"Translate", "[", 
+         RowBox[{
+          RowBox[{"Cuboid", "[", 
+           RowBox[{
+            RowBox[{"{", 
+             RowBox[{"0", ",", 
+              RowBox[{"-", "1"}], ",", "0"}], "}"}], ",", 
+            RowBox[{"{", 
+             RowBox[{".5", ",", 
+              RowBox[{"-", "1.1"}], ",", "1"}], "}"}]}], "]"}], ",", 
+          RowBox[{"{", 
+           RowBox[{"door1", ",", "0", ",", "0"}], "}"}]}], "]"}]}], "}"}],
+      Background->None]}], 
+    StyleBox[";",
+     Background->None], 
+    StyleBox["\[IndentingNewLine]",
+     Background->None], 
+    RowBox[{"cableup2", "=", 
+     RowBox[{"Line", "[", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"3.6", ",", 
+          RowBox[{"-", ".499"}], ",", 
+          RowBox[{"elevator2Height", "+", "1"}]}], "}"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"3.6", ",", 
+          RowBox[{"-", ".499"}], ",", "9.9"}], "}"}]}], "}"}], "]"}]}], ";", 
+    StyleBox["\[IndentingNewLine]",
+     Background->None], 
+    StyleBox[
+     RowBox[{"doorleft2", "=", 
+      RowBox[{"{", 
+       RowBox[{"Gray", ",", 
+        RowBox[{"Translate", "[", 
+         RowBox[{
+          RowBox[{"Cuboid", "[", 
+           RowBox[{
+            RowBox[{"{", 
+             RowBox[{"3", ",", 
+              RowBox[{"-", "1"}], ",", "0"}], "}"}], ",", 
+            RowBox[{"{", 
+             RowBox[{"3.5", ",", 
+              RowBox[{"-", "1.1"}], ",", "1"}], "}"}]}], "]"}], ",", 
+          RowBox[{"{", 
+           RowBox[{"door2", ",", "0", ",", "0"}], "}"}]}], "]"}]}], "}"}]}],
+     Background->None], 
+    StyleBox[";",
+     Background->None], 
+    StyleBox["\[IndentingNewLine]",
+     Background->None], 
+    RowBox[{"cableup3", "=", 
+     RowBox[{"Line", "[", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"6.6", ",", 
+          RowBox[{"-", ".499"}], ",", 
+          RowBox[{"elevator3Height", "+", "1"}]}], "}"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"6.6", ",", 
+          RowBox[{"-", ".499"}], ",", "9.9"}], "}"}]}], "}"}], "]"}]}], ";", 
+    "\[IndentingNewLine]", 
+    RowBox[{"doorleft3", "=", 
+     RowBox[{"{", 
+      RowBox[{"Gray", ",", 
+       RowBox[{"Translate", "[", 
+        RowBox[{
+         RowBox[{"Cuboid", "[", 
+          RowBox[{
+           RowBox[{"{", 
+            RowBox[{"6", ",", 
+             RowBox[{"-", "1"}], ",", "0"}], "}"}], ",", 
+           RowBox[{"{", 
+            RowBox[{"6.5", ",", 
+             RowBox[{"-", "1.1"}], ",", "1"}], "}"}]}], "]"}], ",", 
+         RowBox[{"{", 
+          RowBox[{"door3", ",", "0", ",", "0"}], "}"}]}], "]"}]}], "}"}]}], 
+    ";", "\[IndentingNewLine]", "\[IndentingNewLine]", 
+    RowBox[{"Graphics3D", "[", 
+     RowBox[{
+      RowBox[{"{", "\[IndentingNewLine]", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{"Opacity", "[", "0.1", "]"}], ",", "\[IndentingNewLine]", 
+          RowBox[{"{", 
+           RowBox[{
+           "building", ",", "lobby", ",", "floor1", ",", "floor2", ",", 
+            "floor3", ",", "floor4", ",", "floor5", ",", "floor6", ",", 
+            "floor7", ",", "\[IndentingNewLine]", "elevator1shaftside1", ",", 
+            "elevator1shaftside2", ",", "elevator1shaftside3", ",", 
+            "elevator1shaftside4", ",", 
+            RowBox[{"Translate", "[", 
+             RowBox[{
+              RowBox[{"{", 
+               RowBox[{"{", 
+                RowBox[{"elevator1shaftside3", ",", "elevator1shaftside4"}], 
+                "}"}], "}"}], ",", 
+              RowBox[{"{", 
+               RowBox[{"1.4", ",", "0", ",", "0"}], "}"}]}], "]"}], ",", 
+            "\[IndentingNewLine]", "elevator2shaftside1", ",", 
+            "elevator2shaftside2", ",", "elevator2shaftside3", ",", 
+            "elevator2shaftside4", ",", 
+            RowBox[{"Translate", "[", 
+             RowBox[{
+              RowBox[{"{", 
+               RowBox[{"{", 
+                RowBox[{"elevator2shaftside3", ",", "elevator2shaftside4"}], 
+                "}"}], "}"}], ",", 
+              RowBox[{"{", 
+               RowBox[{"1.4", ",", "0", ",", "0"}], "}"}]}], "]"}], ",", 
+            "\[IndentingNewLine]", "elevator3shaftside1", ",", 
+            "elevator3shaftside2", ",", "elevator3shaftside3", ",", 
+            "elevator3shaftside4", ",", 
+            RowBox[{"Translate", "[", 
+             RowBox[{
+              RowBox[{"{", 
+               RowBox[{"{", 
+                RowBox[{"elevator3shaftside3", ",", "elevator3shaftside4"}], 
+                "}"}], "}"}], ",", 
+              RowBox[{"{", 
+               RowBox[{"1.4", ",", "0", ",", "0"}], "}"}]}], "]"}]}], "}"}]}],
+          "}"}], ",", "\[IndentingNewLine]", 
+        RowBox[{"{", 
+         RowBox[{"Blue", ",", 
+          RowBox[{"{", 
+           RowBox[{
+           "pulley11", ",", "pulley12", ",", "pulley21", ",", "pulley22", ",",
+             "pulley31", ",", "pulley32"}], "}"}]}], "}"}], ",", 
+        "\[IndentingNewLine]", "cableup1", ",", "cableup2", ",", "cableup3", 
+        ",", "cableacross1", ",", "cableacross2", ",", "cableacross3", ",", 
+        "cable2guide1", ",", "cable2guide2", ",", "cable2guide3", ",", 
+        "\[IndentingNewLine]", "\[IndentingNewLine]", 
+        RowBox[{"Translate", "[", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+           "elevator1floor", ",", "elevator1roof", ",", "elevator1leftwall", 
+            ",", "elevator1rightwall", ",", "doorleft1", ",", "backdoor1", 
+            ",", "\[IndentingNewLine]", 
+            RowBox[{"Translate", "[", 
+             RowBox[{
+              RowBox[{"Rotate", "[", 
+               RowBox[{"backdoor1", ",", 
+                RowBox[{"-", "Pi"}], ",", 
+                RowBox[{"{", 
+                 RowBox[{"0", ",", "0", ",", "1"}], "}"}]}], "]"}], ",", 
+              RowBox[{"{", 
+               RowBox[{"1", ",", ".1", ",", "0"}], "}"}]}], "]"}], ",", 
+            RowBox[{"(*", " ", 
+             RowBox[{
+              RowBox[{"Rotate", " ", "around", " ", "the", 
+               FormBox[
+                RowBox[{" ", "z", " "}],
+                TraditionalForm], "axis"}], ",", " ", 
+              RowBox[{"then", " ", "translate"}]}], " ", "*)"}], 
+            "\[IndentingNewLine]", 
+            RowBox[{"Translate", "[", 
+             RowBox[{
+              RowBox[{"Rotate", "[", 
+               RowBox[{"doorleft1", ",", 
+                RowBox[{"-", "Pi"}], ",", 
+                RowBox[{"{", 
+                 RowBox[{"0", ",", "0", ",", "1"}], "}"}]}], "]"}], ",", 
+              RowBox[{"{", 
+               RowBox[{"1", ",", 
+                RowBox[{"-", "2.1"}], ",", "0"}], "}"}]}], "]"}]}], "}"}], 
+          ",", "\[IndentingNewLine]", 
+          RowBox[{"{", 
+           RowBox[{"0", ",", "0", ",", "elevator1Height"}], "}"}]}], "]"}], 
+        ",", "\[IndentingNewLine]", 
+        RowBox[{"Translate", "[", 
+         RowBox[{"counterbalance1", ",", 
+          RowBox[{"{", 
+           RowBox[{"0", ",", "0", ",", 
+            RowBox[{"-", "elevator1Height"}]}], "}"}]}], "]"}], ",", 
+        "\[IndentingNewLine]", "\[IndentingNewLine]", 
+        RowBox[{"Translate", "[", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+           "elevator2floor", ",", "elevator2roof", ",", "elevator2leftwall", 
+            ",", "elevator2rightwall", ",", "doorleft2", ",", "backdoor2", 
+            ",", "\[IndentingNewLine]", 
+            RowBox[{"Translate", "[", 
+             RowBox[{
+              RowBox[{"Rotate", "[", 
+               RowBox[{"backdoor2", ",", 
+                RowBox[{"-", "Pi"}], ",", 
+                RowBox[{"{", 
+                 RowBox[{"0", ",", "0", ",", "1"}], "}"}], ",", 
+                RowBox[{"{", 
+                 RowBox[{"3", ",", "0", ",", "0"}], "}"}]}], "]"}], ",", 
+              RowBox[{"{", 
+               RowBox[{"1", ",", ".1", ",", "0"}], "}"}]}], "]"}], ",", 
+            RowBox[{"(*", " ", 
+             RowBox[{
+              RowBox[{"Rotate", " ", "around", " ", 
+               RowBox[{"(", 
+                RowBox[{"0", ",", " ", "0", ",", " ", "1"}], ")"}], " ", 
+               "anchored", " ", "at", " ", 
+               RowBox[{"(", 
+                RowBox[{"3", ",", " ", "0", ",", " ", "0"}], ")"}]}], ",", 
+              " ", 
+              RowBox[{"then", " ", "translate"}]}], " ", "*)"}], 
+            "\[IndentingNewLine]", 
+            RowBox[{"Translate", "[", 
+             RowBox[{
+              RowBox[{"Rotate", "[", 
+               RowBox[{"doorleft2", ",", 
+                RowBox[{"-", "Pi"}], ",", 
+                RowBox[{"{", 
+                 RowBox[{"0", ",", "0", ",", "1"}], "}"}], ",", 
+                RowBox[{"{", 
+                 RowBox[{"3", ",", "0", ",", "0"}], "}"}]}], "]"}], ",", 
+              RowBox[{"{", 
+               RowBox[{"1", ",", 
+                RowBox[{"-", "2.1"}], ",", "0"}], "}"}]}], "]"}]}], "}"}], 
+          ",", "\[IndentingNewLine]", 
+          RowBox[{"{", 
+           RowBox[{"0", ",", "0", ",", "elevator2Height"}], "}"}]}], "]"}], 
+        ",", "\[IndentingNewLine]", 
+        RowBox[{"Translate", "[", 
+         RowBox[{"counterbalance2", ",", 
+          RowBox[{"{", 
+           RowBox[{"0", ",", "0", ",", 
+            RowBox[{"-", "elevator2Height"}]}], "}"}]}], "]"}], ",", 
+        "\[IndentingNewLine]", "\[IndentingNewLine]", 
+        RowBox[{"Translate", "[", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+           "elevator3floor", ",", "elevator3roof", ",", "elevator3leftwall", 
+            ",", "elevator3rightwall", ",", "doorleft3", ",", "backdoor3", 
+            ",", "\[IndentingNewLine]", 
+            RowBox[{"Translate", "[", 
+             RowBox[{
+              RowBox[{"Rotate", "[", 
+               RowBox[{"backdoor3", ",", 
+                RowBox[{"-", "Pi"}], ",", 
+                RowBox[{"{", 
+                 RowBox[{"0", ",", "0", ",", "1"}], "}"}], ",", 
+                RowBox[{"{", 
+                 RowBox[{"6", ",", "0", ",", "0"}], "}"}]}], "]"}], ",", 
+              RowBox[{"{", 
+               RowBox[{"1", ",", ".1", ",", "0"}], "}"}]}], "]"}], ",", " ", 
+            RowBox[{"(*", " ", 
+             RowBox[{
+              RowBox[{"Rotate", " ", "around", " ", 
+               RowBox[{"(", 
+                RowBox[{"0", ",", " ", "0", ",", " ", "1"}], ")"}], " ", 
+               "anchored", " ", "at", " ", 
+               RowBox[{"(", 
+                RowBox[{"6", ",", " ", "0", ",", " ", "0"}], ")"}]}], ",", 
+              " ", 
+              RowBox[{"then", " ", "translate"}]}], " ", "*)"}], 
+            "\[IndentingNewLine]", 
+            RowBox[{"Translate", "[", 
+             RowBox[{
+              RowBox[{"Rotate", "[", 
+               RowBox[{"doorleft3", ",", 
+                RowBox[{"-", "Pi"}], ",", 
+                RowBox[{"{", 
+                 RowBox[{"0", ",", "0", ",", "1"}], "}"}], ",", 
+                RowBox[{"{", 
+                 RowBox[{"6", ",", "0", ",", "0"}], "}"}]}], "]"}], ",", 
+              RowBox[{"{", 
+               RowBox[{"1", ",", 
+                RowBox[{"-", "2.1"}], ",", "0"}], "}"}]}], "]"}]}], "}"}], 
+          ",", "\[IndentingNewLine]", 
+          RowBox[{"{", 
+           RowBox[{"0", ",", "0", ",", "elevator3Height"}], "}"}]}], "]"}], 
+        ",", "\[IndentingNewLine]", 
+        RowBox[{"Translate", "[", 
+         RowBox[{"counterbalance3", ",", 
+          RowBox[{"{", 
+           RowBox[{"0", ",", "0", ",", 
+            RowBox[{"-", "elevator3Height"}]}], "}"}]}], "]"}]}], "}"}], ",", 
+      "\[IndentingNewLine]", "\[IndentingNewLine]", 
+      RowBox[{"{", 
+       RowBox[{"Boxed", "->", "False"}], "}"}], ",", 
+      RowBox[{"ImageSize", "\[Rule]", 
+       RowBox[{"{", 
+        RowBox[{"300", ",", "450"}], "}"}]}]}], "\[IndentingNewLine]", 
+     "]"}]}], ",", "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"counter", ",", "0", ",", 
+       RowBox[{"Style", "[", "\"\<tick-tock\>\"", "]"}]}], "}"}], ",", "0", 
+     ",", "10", ",", "1", ",", 
+     RowBox[{"ImageSize", "\[Rule]", "20"}]}], "}"}], ",", 
+   "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{"ControlPlacement", "\[Rule]", "Top"}], ",", 
+   RowBox[{"TrackedSymbols", "\[Rule]", "Manipulate"}], ",", 
+   RowBox[{"SaveDefinitions", "\[Rule]", "True"}]}], "\[IndentingNewLine]", 
+  "]"}]], "Input",
+ CellChangeTimes->{{3.6893156937289953`*^9, 3.68931569939322*^9}, {
+   3.689317999667861*^9, 3.689318070121649*^9}, {3.6893181060107584`*^9, 
+   3.6893181488881283`*^9}, {3.6893181869242706`*^9, 
+   3.6893182361093283`*^9}, {3.689318331458578*^9, 3.689318358773959*^9}, {
+   3.689318401268696*^9, 3.689318405101837*^9}, {3.6893184626983476`*^9, 
+   3.6893184880214024`*^9}, {3.6893185293485994`*^9, 3.689318609474943*^9}, {
+   3.689318650786107*^9, 3.6893186706250997`*^9}, {3.6893187322408*^9, 
+   3.6893187509984784`*^9}, {3.689318848242304*^9, 3.6893189262388163`*^9}, {
+   3.6893211081408696`*^9, 3.68932113031619*^9}, {3.6893212564284105`*^9, 
+   3.689321262399011*^9}, {3.689326906339576*^9, 3.6893272302917795`*^9}, {
+   3.6893274781765614`*^9, 3.689327639483173*^9}, {3.689327685468845*^9, 
+   3.6893276955009203`*^9}, {3.6893277955306635`*^9, 3.689327852811468*^9}, {
+   3.6893278831831427`*^9, 3.6893279351287923`*^9}, {3.6893279708618116`*^9, 
+   3.6893279711939797`*^9}, {3.689328008682169*^9, 3.689328102645755*^9}, {
+   3.6893281471640244`*^9, 3.689328184031849*^9}, {3.6893282670816965`*^9, 
+   3.689328267297027*^9}, {3.6893282997115526`*^9, 3.6893285321972675`*^9}, {
+   3.689328576860695*^9, 3.689328781963974*^9}, {3.6893288193129425`*^9, 
+   3.6893289865850325`*^9}, {3.689329133228045*^9, 3.6893291654810305`*^9}, 
+   3.689329399566845*^9, {3.6893294542515097`*^9, 3.6893296550930405`*^9}, {
+   3.689329754198471*^9, 3.6893298006092014`*^9}, {3.68932984244748*^9, 
+   3.6893299318456182`*^9}, {3.6893299701016564`*^9, 3.689330066604525*^9}, {
+   3.6893301190550685`*^9, 3.6893301196550865`*^9}, {3.6893301608980026`*^9, 
+   3.6893302099254413`*^9}, {3.6893303076351233`*^9, 3.689330320029153*^9}, {
+   3.689330355080023*^9, 3.6893304030202775`*^9}, {3.68933050506148*^9, 
+   3.6893305211304703`*^9}, {3.689330611927561*^9, 3.6893307497000055`*^9}, {
+   3.6893309989100494`*^9, 3.689331038372595*^9}, {3.6893311411784997`*^9, 
+   3.6893312134936223`*^9}, {3.689331253747409*^9, 3.68933127905429*^9}, {
+   3.689331328590543*^9, 3.6893315484426193`*^9}, {3.689331661092263*^9, 
+   3.689331674598673*^9}, {3.6893317608966665`*^9, 3.689331769884275*^9}, 
+   3.689331807514476*^9, {3.6893318945693913`*^9, 3.689331931255681*^9}, {
+   3.6893319955956087`*^9, 3.6893320548646054`*^9}, {3.689332189506392*^9, 
+   3.68933221951818*^9}, {3.6893322530983953`*^9, 3.6893323053938427`*^9}, {
+   3.689332660167604*^9, 3.689332661198721*^9}, 3.68933279994285*^9, {
+   3.689333344492719*^9, 3.6893333657994585`*^9}, {3.689336097118661*^9, 
+   3.689336111375183*^9}, {3.6893362104739885`*^9, 3.68933622039746*^9}, {
+   3.689336363776287*^9, 3.6893363756924486`*^9}, {3.6893366484514847`*^9, 
+   3.6893366817024775`*^9}, {3.689336735836308*^9, 3.6893367380038505`*^9}, {
+   3.689336942472953*^9, 3.689337007520702*^9}, {3.689337092385547*^9, 
+   3.689337093439608*^9}, {3.6893372716153345`*^9, 3.6893372744780226`*^9}, {
+   3.6893373536175475`*^9, 3.6893374258072767`*^9}, {3.6893374639353695`*^9, 
+   3.68933747495158*^9}, {3.6893375554520864`*^9, 3.689337566373024*^9}, {
+   3.6893389903646655`*^9, 3.6893390541380253`*^9}, {3.689378008796072*^9, 
+   3.6893780101126833`*^9}, 3.6893854139316254`*^9, {3.689416310041647*^9, 
+   3.6894163165428553`*^9}, {3.689416857795162*^9, 3.6894168949359937`*^9}, {
+   3.6894169494800177`*^9, 3.689416957864787*^9}, {3.6894169906214547`*^9, 
+   3.6894170013370595`*^9}, {3.6894170562149887`*^9, 3.6894170564991913`*^9}, 
+   3.6894172172558813`*^9, {3.6894173050064096`*^9, 3.6894173142828045`*^9}, {
+   3.6894173951181154`*^9, 3.6894174008812637`*^9}, {3.6894184643856583`*^9, 
+   3.689418485773134*^9}, {3.689420213251831*^9, 3.689420218666829*^9}, {
+   3.6894202851994696`*^9, 3.689420285783724*^9}, {3.6894204672014184`*^9, 
+   3.689420527604858*^9}, {3.6894205592178736`*^9, 3.6894205631696773`*^9}, {
+   3.6894206014165273`*^9, 3.6894206731867313`*^9}, {3.689420718041668*^9, 
+   3.6894207587714014`*^9}, {3.6894209650590754`*^9, 
+   3.6894209785580196`*^9}, {3.6894213281817684`*^9, 3.689421328450426*^9}, {
+   3.6894213957240143`*^9, 3.6894213977638164`*^9}, {3.6894214424721823`*^9, 
+   3.689421487537822*^9}, {3.6894215662046576`*^9, 3.6894215878562403`*^9}, {
+   3.6894605962992783`*^9, 3.6894606071435003`*^9}, {3.689462183161474*^9, 
+   3.689462190711859*^9}, {3.6894622487542725`*^9, 3.689462260412862*^9}, {
+   3.689462454616743*^9, 3.68946245721881*^9}, {3.689462542463604*^9, 
+   3.689462545166099*^9}, {3.689462584489752*^9, 3.689462585605683*^9}, {
+   3.6894793568252316`*^9, 3.6894793821679373`*^9}, {3.6894833583233156`*^9, 
+   3.6894835025547485`*^9}, {3.6894835681758394`*^9, 3.689483620354307*^9}, {
+   3.6894974261788683`*^9, 3.689497487398984*^9}, {3.6894975621533527`*^9, 
+   3.6894975738841147`*^9}, {3.6895009715846043`*^9, 
+   3.6895009774415264`*^9}, {3.689502841682784*^9, 3.689502867553339*^9}, {
+   3.6895040802579994`*^9, 3.689504083259369*^9}, {3.6895041398562365`*^9, 
+   3.689504142018611*^9}, {3.689504427971687*^9, 3.6895044281688538`*^9}, {
+   3.6895079619549828`*^9, 3.689507965526701*^9}, {3.689508544697234*^9, 
+   3.689508552178871*^9}, {3.6895086091290646`*^9, 3.6895086121310997`*^9}, {
+   3.689539493432374*^9, 3.6895394955037007`*^9}, 3.6895395495324945`*^9, {
+   3.6895396421667414`*^9, 3.689539643868088*^9}, {3.6895396931458087`*^9, 
+   3.689539743905877*^9}, {3.6895450123628874`*^9, 3.6895450448724585`*^9}, {
+   3.6895450907306185`*^9, 3.6895451777871723`*^9}, {3.6895454600377398`*^9, 
+   3.689545463624598*^9}, {3.6895455293678613`*^9, 3.6895455298460536`*^9}, {
+   3.6895455930699124`*^9, 3.689545602210208*^9}, {3.689545763409829*^9, 
+   3.689545799621518*^9}, {3.689549516438562*^9, 3.689549519454481*^9}, {
+   3.689549835712286*^9, 3.689549842349107*^9}, {3.6895499484277573`*^9, 
+   3.6895500058817635`*^9}, {3.6895507019643335`*^9, 
+   3.6895507685768027`*^9}, {3.6895508555178175`*^9, 
+   3.6895508646742787`*^9}, {3.6895509341209955`*^9, 3.689551011859321*^9}, 
+   3.689559665236453*^9, {3.6895602766350765`*^9, 3.689560277566949*^9}, {
+   3.6895607616864805`*^9, 3.689560765472389*^9}, {3.689562913293479*^9, 
+   3.689562920381706*^9}, {3.6895630293826637`*^9, 3.689563032362844*^9}, {
+   3.6895633524000235`*^9, 3.6895633538484497`*^9}, {3.6895634726415987`*^9, 
+   3.6895634732644863`*^9}, {3.6895639392475677`*^9, 
+   3.6895640624798517`*^9}, {3.6895643005232472`*^9, 3.689564304957451*^9}, {
+   3.689565356871049*^9, 3.6895653788857155`*^9}, {3.689565731984427*^9, 
+   3.6895657357173*^9}, {3.689587057358369*^9, 3.689587058728752*^9}, {
+   3.6895871474643197`*^9, 3.6895871478959274`*^9}, 3.6895975006784887`*^9, {
+   3.6895985411756115`*^9, 3.689598694360145*^9}, {3.690364094090448*^9, 
+   3.6903641260052853`*^9}, {3.6903714194767046`*^9, 
+   3.6903714198611345`*^9}, {3.690371552923357*^9, 3.690371572232733*^9}, {
+   3.6903781843614345`*^9, 3.690378216135769*^9}, {3.690379496879361*^9, 
+   3.69037950838589*^9}, 3.6903795800346503`*^9, {3.6903796598835173`*^9, 
+   3.690379660905737*^9}, {3.690416123609375*^9, 3.690416168423261*^9}, 
+   3.690416202330789*^9, {3.690416401656432*^9, 3.690416422670546*^9}, 
+   3.6904164803132715`*^9, {3.690417918309266*^9, 3.690417922577243*^9}}],
+
+Cell[BoxData[
+ TagBox[
+  StyleBox[
+   DynamicModuleBox[{$CellContext`counter$$ = 0, Typeset`show$$ = True, 
+    Typeset`bookmarkList$$ = {}, Typeset`bookmarkMode$$ = "Menu", 
+    Typeset`animator$$, Typeset`animvar$$ = 1, Typeset`name$$ = 
+    "\"untitled\"", Typeset`specs$$ = {{{
+       Hold[$CellContext`counter$$], 0, 
+       Style["tick-tock"]}, 0, 10, 1}}, Typeset`size$$ = {300., {222., 228.}},
+     Typeset`update$$ = 0, Typeset`initDone$$, Typeset`skipInitDone$$ = 
+    False, $CellContext`counter$29000$$ = 0}, 
+    DynamicBox[Manipulate`ManipulateBoxes[
+     1, StandardForm, "Variables" :> {$CellContext`counter$$ = 0}, 
+      "ControllerVariables" :> {
+        Hold[$CellContext`counter$$, $CellContext`counter$29000$$, 0]}, 
+      "OtherVariables" :> {
+       Typeset`show$$, Typeset`bookmarkList$$, Typeset`bookmarkMode$$, 
+        Typeset`animator$$, Typeset`animvar$$, Typeset`name$$, 
+        Typeset`specs$$, Typeset`size$$, Typeset`update$$, Typeset`initDone$$,
+         Typeset`skipInitDone$$}, "Body" :> (If[
+         IntegerQ[$CellContext`counter$$], AddTo[$CellContext`t, 1]; 
+         Null]; $CellContext`sampleGenerator[$CellContext`t]; \
+$CellContext`elevatorAssign[$CellContext`t]; \
+$CellContext`elevatorSystem[$CellContext`t]; $CellContext`cableup1 = 
+        Line[{{0.6, -0.499, $CellContext`elevator1Height + 1}, {0.6, -0.499, 
+           9.9}}]; $CellContext`doorleft1 = {Gray, 
+          Translate[
+           
+           Cuboid[{0, -1, 0}, {0.5, -1.1, 1}], {$CellContext`door1, 0, 
+            0}]}; $CellContext`cableup2 = 
+        Line[{{3.6, -0.499, $CellContext`elevator2Height + 1}, {3.6, -0.499, 
+           9.9}}]; $CellContext`doorleft2 = {Gray, 
+          Translate[
+           
+           Cuboid[{3, -1, 0}, {3.5, -1.1, 1}], {$CellContext`door2, 0, 
+            0}]}; $CellContext`cableup3 = 
+        Line[{{6.6, -0.499, $CellContext`elevator3Height + 1}, {6.6, -0.499, 
+           9.9}}]; $CellContext`doorleft3 = {Gray, 
+          Translate[
+           Cuboid[{6, -1, 0}, {6.5, -1.1, 1}], {$CellContext`door3, 0, 0}]}; 
+       Graphics3D[{{
+           Opacity[
+           0.1], {$CellContext`building, $CellContext`lobby, \
+$CellContext`floor1, $CellContext`floor2, $CellContext`floor3, \
+$CellContext`floor4, $CellContext`floor5, $CellContext`floor6, \
+$CellContext`floor7, $CellContext`elevator1shaftside1, \
+$CellContext`elevator1shaftside2, $CellContext`elevator1shaftside3, \
+$CellContext`elevator1shaftside4, 
+            
+            Translate[{{$CellContext`elevator1shaftside3, \
+$CellContext`elevator1shaftside4}}, {
+             1.4, 0, 0}], $CellContext`elevator2shaftside1, \
+$CellContext`elevator2shaftside2, $CellContext`elevator2shaftside3, \
+$CellContext`elevator2shaftside4, 
+            
+            Translate[{{$CellContext`elevator2shaftside3, \
+$CellContext`elevator2shaftside4}}, {
+             1.4, 0, 0}], $CellContext`elevator3shaftside1, \
+$CellContext`elevator3shaftside2, $CellContext`elevator3shaftside3, \
+$CellContext`elevator3shaftside4, 
+            
+            Translate[{{$CellContext`elevator3shaftside3, \
+$CellContext`elevator3shaftside4}}, {1.4, 0, 0}]}}, {
+          Blue, {$CellContext`pulley11, $CellContext`pulley12, \
+$CellContext`pulley21, $CellContext`pulley22, $CellContext`pulley31, \
+$CellContext`pulley32}}, $CellContext`cableup1, $CellContext`cableup2, \
+$CellContext`cableup3, $CellContext`cableacross1, $CellContext`cableacross2, \
+$CellContext`cableacross3, $CellContext`cable2guide1, \
+$CellContext`cable2guide2, $CellContext`cable2guide3, 
+          
+          Translate[{$CellContext`elevator1floor, $CellContext`elevator1roof, \
+$CellContext`elevator1leftwall, $CellContext`elevator1rightwall, \
+$CellContext`doorleft1, $CellContext`backdoor1, 
+            Translate[
+             Rotate[$CellContext`backdoor1, -Pi, {0, 0, 1}], {1, 0.1, 0}], 
+            Translate[
+             Rotate[$CellContext`doorleft1, -Pi, {0, 0, 1}], {1, -2.1, 0}]}, {
+           0, 0, $CellContext`elevator1Height}], 
+          
+          Translate[$CellContext`counterbalance1, {
+           0, 0, -$CellContext`elevator1Height}], 
+          
+          Translate[{$CellContext`elevator2floor, $CellContext`elevator2roof, \
+$CellContext`elevator2leftwall, $CellContext`elevator2rightwall, \
+$CellContext`doorleft2, $CellContext`backdoor2, 
+            Translate[
+             Rotate[$CellContext`backdoor2, -Pi, {0, 0, 1}, {3, 0, 0}], {
+             1, 0.1, 0}], 
+            Translate[
+             Rotate[$CellContext`doorleft2, -Pi, {0, 0, 1}, {3, 0, 0}], {
+             1, -2.1, 0}]}, {0, 0, $CellContext`elevator2Height}], 
+          
+          Translate[$CellContext`counterbalance2, {
+           0, 0, -$CellContext`elevator2Height}], 
+          
+          Translate[{$CellContext`elevator3floor, $CellContext`elevator3roof, \
+$CellContext`elevator3leftwall, $CellContext`elevator3rightwall, \
+$CellContext`doorleft3, $CellContext`backdoor3, 
+            Translate[
+             Rotate[$CellContext`backdoor3, -Pi, {0, 0, 1}, {6, 0, 0}], {
+             1, 0.1, 0}], 
+            Translate[
+             Rotate[$CellContext`doorleft3, -Pi, {0, 0, 1}, {6, 0, 0}], {
+             1, -2.1, 0}]}, {0, 0, $CellContext`elevator3Height}], 
+          
+          Translate[$CellContext`counterbalance3, {
+           0, 0, -$CellContext`elevator3Height}]}, {Boxed -> False}, 
+         ImageSize -> {300, 450}]), 
+      "Specifications" :> {{{$CellContext`counter$$, 0, 
+          Style["tick-tock"]}, 0, 10, 1, ImageSize -> 20}}, 
+      "Options" :> {ControlPlacement -> Top, TrackedSymbols -> Manipulate}, 
+      "DefaultOptions" :> {ControllerLinking -> True}],
+     ImageSizeCache->{349., {264., 271.}},
+     SingleEvaluation->True],
+    Deinitialization:>None,
+    DynamicModuleValues:>{},
+    Initialization:>({$CellContext`t = 0, $CellContext`sampleGenerator[
+         Pattern[$CellContext`t, 
+          Blank[]]] := 
+       Which[$CellContext`t == 2, $CellContext`callqueue = 
+         Join[$CellContext`callqueue, {{$CellContext`$f0, $CellContext`$f4, \
+$CellContext`$UP}, {$CellContext`$f1, $CellContext`$f4, $CellContext`$UP}, \
+{$CellContext`$f4, $CellContext`$f0, $CellContext`$DOWN}, {$CellContext`$f6, \
+$CellContext`$f1, $CellContext`$DOWN}}], $CellContext`t == 
+         20, $CellContext`callqueue = 
+         Join[$CellContext`callqueue, {{$CellContext`$f0, $CellContext`$f7, \
+$CellContext`$UP}, {$CellContext`$f5, $CellContext`$f2, \
+$CellContext`$DOWN}}]], $CellContext`callqueue = {}, $CellContext`$f0 = 
+       0.05, $CellContext`$f4 = 4.85, $CellContext`$UP = 1, $CellContext`$f1 = 
+       1.25, $CellContext`$DOWN = -1, $CellContext`$f6 = 
+       7.25, $CellContext`$f7 = 8.45, $CellContext`$f5 = 
+       6.05, $CellContext`$f2 = 2.45, $CellContext`elevatorAssign[
+         Pattern[$CellContext`t, 
+          Blank[]]] := 
+       Module[{}, 
+         If[Length[$CellContext`callqueue] > 
+           0, $CellContext`callqueueTimeCost = Table[
+              Map[$CellContext`timeCost, {{
+                 
+                 Part[$CellContext`callqueue, $CellContext`i], \
+$CellContext`elevator1Height, $CellContext`elevator1State, \
+$CellContext`queue1}, {
+                 
+                 Part[$CellContext`callqueue, $CellContext`i], \
+$CellContext`elevator2Height, $CellContext`elevator2State, \
+$CellContext`queue2}, {
+                 
+                 Part[$CellContext`callqueue, $CellContext`i], \
+$CellContext`elevator3Height, $CellContext`elevator3State, \
+$CellContext`queue3}}], {$CellContext`i, 1, 
+               
+               Length[$CellContext`callqueue]}]; \
+$CellContext`callqueueTimeCostMin = Map[Min, $CellContext`callqueueTimeCost]; 
+           Map[If[
+              And[
+              Part[$CellContext`callqueueTimeCost, #, 1] == 
+               Part[$CellContext`callqueueTimeCostMin, #], 
+               Part[$CellContext`callqueueTimeCostMin, #] != 
+               999], $CellContext`queue1 = Join[$CellContext`queue1, 
+                Part[$CellContext`callqueue, #, {1, 2}]], 
+              If[
+               And[
+               Part[$CellContext`callqueueTimeCost, #, 2] == 
+                Part[$CellContext`callqueueTimeCostMin, #], 
+                Part[$CellContext`callqueueTimeCostMin, #] != 
+                999], $CellContext`queue2 = Join[$CellContext`queue2, 
+                 Part[$CellContext`callqueue, #, {1, 2}]], 
+               If[
+               Part[$CellContext`callqueueTimeCostMin, #] != 
+                999, $CellContext`queue3 = Join[$CellContext`queue3, 
+                  Part[$CellContext`callqueue, #, {1, 2}]]]]]& , 
+             Range[
+              Length[$CellContext`callqueue]]]; $CellContext`droplist = Select[
+              Range[
+               Length[$CellContext`callqueue]], 
+              Part[$CellContext`callqueueTimeCostMin, #] != 
+              999& ]; $CellContext`callqueue = Delete[$CellContext`callqueue, 
+              Map[List, $CellContext`droplist]]; $CellContext`queue1 = 
+            DeleteDuplicates[$CellContext`queue1]; $CellContext`queue2 = 
+            DeleteDuplicates[$CellContext`queue2]; $CellContext`queue3 = 
+            DeleteDuplicates[$CellContext`queue3]; Null]; $CellContext`queue1 = 
+          Which[$CellContext`elevator1State == $CellContext`$UP, 
+            
+            Sort[$CellContext`queue1], $CellContext`elevator1State == \
+$CellContext`$DOWN, 
+            
+            Sort[$CellContext`queue1, 
+             Greater], $CellContext`elevator1State == $CellContext`$IDLE, \
+$CellContext`queue1]; $CellContext`queue2 = 
+          Which[$CellContext`elevator2State == $CellContext`$UP, 
+            
+            Sort[$CellContext`queue2], $CellContext`elevator2State == \
+$CellContext`$DOWN, 
+            
+            Sort[$CellContext`queue2, 
+             Greater], $CellContext`elevator2State == $CellContext`$IDLE, \
+$CellContext`queue2]; $CellContext`queue3 = 
+          Which[$CellContext`elevator3State == $CellContext`$UP, 
+            
+            Sort[$CellContext`queue3], $CellContext`elevator3State == \
+$CellContext`$DOWN, 
+            
+            Sort[$CellContext`queue3, 
+             Greater], $CellContext`elevator3State == $CellContext`$IDLE, \
+$CellContext`queue3]; Null], $CellContext`callqueueTimeCost = {{
+         999, 13.999999999999998`, 999}, {
+         999, 16., 999}}, $CellContext`timeCost[{{
+           Pattern[$CellContext`depart, 
+            Blank[]], 
+           Pattern[$CellContext`dest, 
+            Blank[]], 
+           Pattern[$CellContext`dir, 
+            Blank[]]}, 
+          Pattern[$CellContext`elevatorHeight, 
+           Blank[]], 
+          Pattern[$CellContext`elevatorState, 
+           Blank[]], 
+          Pattern[$CellContext`queue, 
+           Blank[]]}] := Which[$CellContext`elevatorState == $CellContext`$UP, 
+         If[
+          
+          And[$CellContext`dir == $CellContext`$UP, $CellContext`depart > \
+$CellContext`elevatorHeight], ($CellContext`dest - \
+$CellContext`elevatorHeight)/$CellContext`$SPEED + $CellContext`$DOOROPENTIME 
+           Count[$CellContext`queue, 
+             PatternTest[
+              Blank[], # < $CellContext`dest& ]], 
+          999], $CellContext`elevatorState == $CellContext`$DOWN, 
+         If[
+          
+          And[$CellContext`dir == $CellContext`$DOWN, $CellContext`depart < \
+$CellContext`elevatorHeight], ($CellContext`elevatorHeight - \
+$CellContext`dest)/$CellContext`$SPEED + $CellContext`$DOOROPENTIME 
+           Count[$CellContext`queue, 
+             PatternTest[
+              Blank[], # > $CellContext`dest& ]], 
+          999], $CellContext`elevatorState == $CellContext`$IDLE, (
+          Abs[$CellContext`depart - $CellContext`elevatorHeight] + 
+          Abs[$CellContext`dest - $CellContext`depart])/$CellContext`$SPEED], \
+$CellContext`$SPEED = 0.6, $CellContext`$DOOROPENTIME = 5, $CellContext`$IDLE = 
+       0, $CellContext`elevator1Height = 0.05, $CellContext`elevator1State = 
+       0, $CellContext`queue1 = {}, $CellContext`elevator2Height = 
+       4.85, $CellContext`elevator2State = 
+       0, $CellContext`queue2 = {}, $CellContext`elevator3Height = 
+       8.45, $CellContext`elevator3State = 
+       0, $CellContext`queue3 = {}, $CellContext`callqueueTimeCostMin = {
+        13.999999999999998`, 16.}, $CellContext`droplist = {1, 
+        2}, $CellContext`elevatorSystem[
+         Pattern[$CellContext`t, 
+          Blank[]]] := 
+       Module[{}, 
+         If[Length[$CellContext`queue1] > 0, 
+           Which[$CellContext`elevator1OperationState == $CellContext`$ARRIVE,
+              AddTo[$CellContext`dooropentime1, 1]; 
+             
+             If[$CellContext`dooropentime1 == $CellContext`$DOOROPENTIME, \
+$CellContext`door1 = $CellContext`$CLOSED; $CellContext`dooropentime1 = 
+                0; $CellContext`elevator1State = $CellContext`$IDLE; \
+$CellContext`elevator1OperationState = $CellContext`$NORMAL; \
+$CellContext`queue1 = Drop[$CellContext`queue1, 1]; Null]; 
+             Null, $CellContext`elevator1State == $CellContext`$UP, 
+             AddTo[$CellContext`elevator1Height, $CellContext`$SPEED]; 
+             If[$CellContext`elevator1Height == 
+               First[$CellContext`queue1], \
+$CellContext`elevator1OperationState = $CellContext`$ARRIVE; \
+$CellContext`door1 = $CellContext`$OPEN; Null]; 
+             Null, $CellContext`elevator1State == $CellContext`$DOWN, 
+             SubtractFrom[$CellContext`elevator1Height, $CellContext`$SPEED]; 
+             If[$CellContext`elevator1Height == 
+               First[$CellContext`queue1], \
+$CellContext`elevator1OperationState = $CellContext`$ARRIVE; \
+$CellContext`door1 = $CellContext`$OPEN; Null]; 
+             Null, $CellContext`elevator1State == $CellContext`$IDLE, 
+             Which[$CellContext`elevator1Height == 
+               First[$CellContext`queue1], \
+$CellContext`elevator1OperationState = $CellContext`$ARRIVE; \
+$CellContext`door1 = $CellContext`$OPEN; Null, $CellContext`elevator1Height < 
+               First[$CellContext`queue1], $CellContext`elevator1State = \
+$CellContext`$UP, $CellContext`elevator1Height > 
+               First[$CellContext`queue1], $CellContext`elevator1State = \
+$CellContext`$DOWN]; Null]; 
+           Null, $CellContext`elevator1State = $CellContext`$IDLE; Null]; 
+         If[Length[$CellContext`queue2] > 0, 
+           Which[$CellContext`elevator2OperationState == $CellContext`$ARRIVE,
+              AddTo[$CellContext`dooropentime2, 1]; 
+             If[$CellContext`dooropentime2 == $CellContext`$DOOROPENTIME, \
+$CellContext`door2 = $CellContext`$CLOSED; $CellContext`dooropentime2 = 
+                0; $CellContext`elevator2State = $CellContext`$IDLE; \
+$CellContext`elevator2OperationState = $CellContext`$NORMAL; \
+$CellContext`queue2 = Drop[$CellContext`queue2, 1]; Null]; 
+             Null, $CellContext`elevator2State == $CellContext`$UP, 
+             AddTo[$CellContext`elevator2Height, $CellContext`$SPEED]; 
+             If[$CellContext`elevator2Height == 
+               First[$CellContext`queue2], \
+$CellContext`elevator2OperationState = $CellContext`$ARRIVE; \
+$CellContext`door2 = $CellContext`$OPEN; Null]; 
+             Null, $CellContext`elevator2State == $CellContext`$DOWN, 
+             SubtractFrom[$CellContext`elevator2Height, $CellContext`$SPEED]; 
+             If[$CellContext`elevator2Height == 
+               First[$CellContext`queue2], \
+$CellContext`elevator2OperationState = $CellContext`$ARRIVE; \
+$CellContext`door2 = $CellContext`$OPEN; Null]; 
+             Null, $CellContext`elevator2State == $CellContext`$IDLE, 
+             Which[$CellContext`elevator2Height == 
+               First[$CellContext`queue2], \
+$CellContext`elevator2OperationState = $CellContext`$ARRIVE; \
+$CellContext`door2 = $CellContext`$OPEN; Null, $CellContext`elevator2Height < 
+               First[$CellContext`queue2], $CellContext`elevator2State = \
+$CellContext`$UP, $CellContext`elevator2Height > 
+               First[$CellContext`queue2], $CellContext`elevator2State = \
+$CellContext`$DOWN]; Null]; 
+           Null, $CellContext`elevator2State = $CellContext`$IDLE; Null]; 
+         If[Length[$CellContext`queue3] > 0, 
+           Which[$CellContext`elevator3OperationState == $CellContext`$ARRIVE,
+              AddTo[$CellContext`dooropentime3, 1]; 
+             If[$CellContext`dooropentime3 == $CellContext`$DOOROPENTIME, \
+$CellContext`door3 = $CellContext`$CLOSED; $CellContext`dooropentime3 = 
+                0; $CellContext`elevator3State = $CellContext`$IDLE; \
+$CellContext`elevator3OperationState = $CellContext`$NORMAL; \
+$CellContext`queue3 = Drop[$CellContext`queue3, 1]; Null]; 
+             Null, $CellContext`elevator3State == $CellContext`$UP, 
+             AddTo[$CellContext`elevator3Height, $CellContext`$SPEED]; 
+             If[$CellContext`elevator3Height == 
+               First[$CellContext`queue3], \
+$CellContext`elevator3OperationState = $CellContext`$ARRIVE; \
+$CellContext`door3 = $CellContext`$OPEN; Null]; 
+             Null, $CellContext`elevator3State == $CellContext`$DOWN, 
+             SubtractFrom[$CellContext`elevator3Height, $CellContext`$SPEED]; 
+             If[$CellContext`elevator3Height == 
+               First[$CellContext`queue3], \
+$CellContext`elevator3OperationState = $CellContext`$ARRIVE; \
+$CellContext`door3 = $CellContext`$OPEN; Null]; 
+             Null, $CellContext`elevator3State == $CellContext`$IDLE, 
+             Which[$CellContext`elevator3Height == 
+               First[$CellContext`queue3], \
+$CellContext`elevator3OperationState = $CellContext`$ARRIVE; \
+$CellContext`door3 = $CellContext`$OPEN; Null, $CellContext`elevator3Height < 
+               First[$CellContext`queue3], $CellContext`elevator3State = \
+$CellContext`$UP, $CellContext`elevator3Height > 
+               First[$CellContext`queue3], $CellContext`elevator3State = \
+$CellContext`$DOWN]; Null]; 
+           Null, $CellContext`elevator3State = $CellContext`$IDLE; Null]; 
+         Null], $CellContext`elevator1OperationState = 
+       0, $CellContext`$ARRIVE = 1, $CellContext`dooropentime1 = 
+       0, $CellContext`door1 = 0, $CellContext`$CLOSED = 
+       0, $CellContext`$NORMAL = 
+       0, $CellContext`$OPEN = -0.5, $CellContext`elevator2OperationState = 
+       0, $CellContext`dooropentime2 = 0, $CellContext`door2 = 
+       0, $CellContext`elevator3OperationState = 
+       0, $CellContext`dooropentime3 = 0, $CellContext`door3 = 
+       0, $CellContext`cableup1 = 
+       Line[{{0.6, -0.499, 5.85}, {0.6, -0.499, 
+         9.9}}], $CellContext`doorleft1 = {
+         GrayLevel[0.5], 
+         Translate[
+          Cuboid[{0, -1, 0}, {0.5, -1.1, 1}], {0, 0, 
+          0}]}, $CellContext`cableup2 = 
+       Line[{{3.6, -0.499, 7.049999999999999}, {3.6, -0.499, 
+         9.9}}], $CellContext`doorleft2 = {
+         GrayLevel[0.5], 
+         Translate[
+          
+          Cuboid[{3, -1, 0}, {3.5, -1.1, 1}], {-0.5, 0, 
+           0}]}, $CellContext`cableup3 = 
+       Line[{{6.6, -0.499, 2.2500000000000013`}, {6.6, -0.499, 
+         9.9}}], $CellContext`doorleft3 = {
+         GrayLevel[0.5], 
+         Translate[
+          Cuboid[{6, -1, 0}, {6.5, -1.1, 1}], {0, 0, 
+          0}]}, $CellContext`building = 
+       Cuboid[{-2, 2, 0}, {8, -2, 10.1}], $CellContext`lobby = 
+       Cuboid[{-2, 2, -0.1}, {8, -2, 0.05}], $CellContext`floor1 = 
+       Cuboid[{-2, 2, 1.15}, {8, -2, 1.2}], $CellContext`floor2 = 
+       Cuboid[{-2, 2, 2.35}, {8, -2, 2.4}], $CellContext`floor3 = 
+       Cuboid[{-2, 2, 3.55}, {8, -2, 3.6}], $CellContext`floor4 = 
+       Cuboid[{-2, 2, 4.75}, {8, -2, 4.8}], $CellContext`floor5 = 
+       Cuboid[{-2, 2, 5.95}, {8, -2, 6.}], $CellContext`floor6 = 
+       Cuboid[{-2, 2, 7.15}, {8, -2, 7.2}], $CellContext`floor7 = 
+       Cuboid[{-2, 2, 8.35}, {8, -2, 8.4}], $CellContext`elevator1shaftside1 = 
+       Cuboid[{-0.6, 0.2, 0}, {-0.5, -1.2, 
+         9.99}], $CellContext`elevator1shaftside2 = 
+       Cuboid[{1.5, 0.2, 0}, {1.6, -1.2, 
+         9.99}], $CellContext`elevator1shaftside3 = 
+       Cuboid[{-0.5, 0.2, 0}, {0.1, 0.1, 
+         9.99}], $CellContext`elevator1shaftside4 = 
+       Cuboid[{-0.5, -1.1, 0}, {0.1, -1.2, 
+         9.99}], $CellContext`elevator2shaftside1 = Translate[
+         Cuboid[{-0.6, 0.2, 0}, {-0.5, -1.2, 9.99}], {3, 0, 
+         0}], $CellContext`elevator2shaftside2 = Translate[
+         Cuboid[{1.5, 0.2, 0}, {1.6, -1.2, 9.99}], {3, 0, 
+         0}], $CellContext`elevator2shaftside3 = Translate[
+         Cuboid[{-0.5, 0.2, 0}, {0.1, 0.1, 9.99}], {3, 0, 
+         0}], $CellContext`elevator2shaftside4 = Translate[
+         Cuboid[{-0.5, -1.1, 0}, {0.1, -1.2, 9.99}], {3, 0, 
+         0}], $CellContext`elevator3shaftside1 = Translate[
+         Cuboid[{-0.6, 0.2, 0}, {-0.5, -1.2, 9.99}], {6, 0, 
+         0}], $CellContext`elevator3shaftside2 = Translate[
+         Cuboid[{1.5, 0.2, 0}, {1.6, -1.2, 9.99}], {6, 0, 
+         0}], $CellContext`elevator3shaftside3 = Translate[
+         Cuboid[{-0.5, 0.2, 0}, {0.1, 0.1, 9.99}], {6, 0, 
+         0}], $CellContext`elevator3shaftside4 = Translate[
+         Cuboid[{-0.5, -1.1, 0}, {0.1, -1.2, 9.99}], {6, 0, 
+         0}], $CellContext`pulley11 = 
+       Cylinder[{{0.5, -0.45, 9.9}, {0.5, -0.55, 9.9}}, 
+         0.1], $CellContext`pulley12 = 
+       Cylinder[{{0, -0.45, 9.9}, {0, -0.55, 9.9}}, 
+         0.1], $CellContext`pulley21 = Translate[
+         Cylinder[{{0.5, -0.45, 9.9}, {0.5, -0.55, 9.9}}, 0.1], {3, 0, 
+         0}], $CellContext`pulley22 = Translate[
+         Cylinder[{{0, -0.45, 9.9}, {0, -0.55, 9.9}}, 0.1], {3, 0, 
+         0}], $CellContext`pulley31 = Translate[
+         Cylinder[{{0.5, -0.45, 9.9}, {0.5, -0.55, 9.9}}, 0.1], {6, 0, 
+         0}], $CellContext`pulley32 = Translate[
+         Cylinder[{{0, -0.45, 9.9}, {0, -0.55, 9.9}}, 0.1], {6, 0, 
+         0}], $CellContext`cableacross1 = 
+       Line[{{0.5, -0.5, 10}, {0, -0.5, 10}}], $CellContext`cableacross2 = 
+       Translate[
+         Line[{{0.5, -0.5, 10}, {0, -0.5, 10}}], {3, 0, 
+         0}], $CellContext`cableacross3 = Translate[
+         Line[{{0.5, -0.5, 10}, {0, -0.5, 10}}], {6, 0, 
+         0}], $CellContext`cable2guide1 = {
+         GrayLevel[0], 
+         Cuboid[{{
+           0, -0.4, 9.9}, {-0.2, -0.6, 0}}]}, $CellContext`cable2guide2 = 
+       Translate[{
+          GrayLevel[0], 
+          Cuboid[{{0, -0.4, 9.9}, {-0.2, -0.6, 0}}]}, {3, 0, 
+         0}], $CellContext`cable2guide3 = Translate[{
+          GrayLevel[0], 
+          Cuboid[{{0, -0.4, 9.9}, {-0.2, -0.6, 0}}]}, {6, 0, 
+         0}], $CellContext`elevator1floor = {
+         RGBColor[1, 0.5, 0], 
+         Cuboid[{0, 0.1, 0}, {1, -1.1, -0.1}]}, $CellContext`elevator1roof = {
+         RGBColor[1, 0.5, 0], 
+         Cuboid[{0, 0.1, 1}, {1, -1.1, 1.1}]}, $CellContext`elevator1leftwall = {
+         RGBColor[1, 0.5, 0], 
+         Cuboid[{0, 0, 0}, {0.1, -1, 1}]}, $CellContext`elevator1rightwall = {
+         RGBColor[1, 0.5, 0], 
+         Cuboid[{1, 0, 0}, {0.9, -1, 1}]}, $CellContext`backdoor1 = {
+         GrayLevel[0.5], 
+         Translate[
+          Cuboid[{0, 0, 0}, {0.5, 0.1, 1}], {0, 0, 
+          0}]}, $CellContext`counterbalance1 = {
+         RGBColor[1, 0, 0], 
+         Cuboid[{-0.2, 0, 9.8}, {-0.3, -1, 9}]}, $CellContext`elevator2floor = 
+       Translate[{
+          RGBColor[1, 0.5, 0], 
+          Cuboid[{0, 0.1, 0}, {1, -1.1, -0.1}]}, {3, 0, 
+         0}], $CellContext`elevator2roof = Translate[{
+          RGBColor[1, 0.5, 0], 
+          Cuboid[{0, 0.1, 1}, {1, -1.1, 1.1}]}, {3, 0, 
+         0}], $CellContext`elevator2leftwall = Translate[{
+          RGBColor[1, 0.5, 0], 
+          Cuboid[{0, 0, 0}, {0.1, -1, 1}]}, {3, 0, 
+         0}], $CellContext`elevator2rightwall = Translate[{
+          RGBColor[1, 0.5, 0], 
+          Cuboid[{1, 0, 0}, {0.9, -1, 1}]}, {3, 0, 
+         0}], $CellContext`backdoor2 = {
+         GrayLevel[0.5], 
+         Translate[
+          Cuboid[{3, 0, 0}, {3.5, 0.1, 1}], {0, 0, 
+          0}]}, $CellContext`counterbalance2 = Translate[{
+          RGBColor[1, 0, 0], 
+          Cuboid[{-0.2, 0, 9.8}, {-0.3, -1, 9}]}, {3, 0, 
+         0}], $CellContext`elevator3floor = Translate[{
+          RGBColor[1, 0.5, 0], 
+          Cuboid[{0, 0.1, 0}, {1, -1.1, -0.1}]}, {6, 0, 
+         0}], $CellContext`elevator3roof = Translate[{
+          RGBColor[1, 0.5, 0], 
+          Cuboid[{0, 0.1, 1}, {1, -1.1, 1.1}]}, {6, 0, 
+         0}], $CellContext`elevator3leftwall = Translate[{
+          RGBColor[1, 0.5, 0], 
+          Cuboid[{0, 0, 0}, {0.1, -1, 1}]}, {6, 0, 
+         0}], $CellContext`elevator3rightwall = Translate[{
+          RGBColor[1, 0.5, 0], 
+          Cuboid[{1, 0, 0}, {0.9, -1, 1}]}, {6, 0, 
+         0}], $CellContext`backdoor3 = {
+         GrayLevel[0.5], 
+         Translate[
+          Cuboid[{6, 0, 0}, {6.5, 0.1, 1}], {0, 0, 
+          0}]}, $CellContext`counterbalance3 = Translate[{
+          RGBColor[1, 0, 0], 
+          Cuboid[{-0.2, 0, 9.8}, {-0.3, -1, 9}]}, {6, 0, 0}]}; 
+     Typeset`initDone$$ = True),
+    SynchronousInitialization->True,
+    UndoTrackedVariables:>{Typeset`show$$, Typeset`bookmarkMode$$},
+    UnsavedVariables:>{Typeset`initDone$$},
+    UntrackedVariables:>{Typeset`size$$}], "Manipulate",
+   Deployed->True,
+   StripOnInput->False],
+  Manipulate`InterpretManipulate[1]]], "Output",
+ CellChangeTimes->{
+  3.689331808300152*^9, {3.6893319199347715`*^9, 3.689331931740584*^9}, {
+   3.689332035352431*^9, 3.689332055318443*^9}, {3.6893321902227755`*^9, 
+   3.689332220215706*^9}, {3.68933225456796*^9, 3.6893323059419613`*^9}, 
+   3.689332661953761*^9, 3.689333288033346*^9, 3.689333367654764*^9, 
+   3.6893363763240232`*^9, 3.6893373777592716`*^9, 3.689337475736699*^9, 
+   3.689337568558704*^9, 3.689338853169551*^9, 3.6893721880763683`*^9, 
+   3.6893780151174307`*^9, 3.6894126984992495`*^9, 3.689416322790471*^9, {
+   3.6894163618554907`*^9, 3.6894163791825085`*^9}, 3.6894166366088943`*^9, 
+   3.689416720246749*^9, {3.6894167765234327`*^9, 3.6894168048285084`*^9}, 
+   3.6894168390938377`*^9, 3.6894168984351015`*^9, 3.6894169664959702`*^9, 
+   3.6894170052746067`*^9, 3.689417057968288*^9, 3.689417191385187*^9, {
+   3.689417317168231*^9, 3.6894173607678275`*^9}, 3.6894174013020697`*^9, 
+   3.6894175098085127`*^9, 3.6894177649021063`*^9, 3.6894179442517223`*^9, 
+   3.6894180135931835`*^9, 3.6894181865458345`*^9, 3.6894182401151447`*^9, {
+   3.6894183537011876`*^9, 3.6894183781403465`*^9}, 3.689418425343071*^9, {
+   3.689418466254241*^9, 3.6894184938873653`*^9}, 3.6894185509569206`*^9, {
+   3.6894187730011168`*^9, 3.6894188067080564`*^9}, {3.689418862076605*^9, 
+   3.6894188782301826`*^9}, 3.6894189212622614`*^9, 3.6894190234150324`*^9, 
+   3.6894190568472815`*^9, {3.6894191107355475`*^9, 3.6894191402593746`*^9}, {
+   3.689420266849458*^9, 3.689420287899851*^9}, 3.6894205297370434`*^9, 
+   3.689420564386403*^9, {3.689420640824149*^9, 3.6894206523407364`*^9}, 
+   3.6894207205107875`*^9, 3.6894207596094584`*^9, {3.689420966559622*^9, 
+   3.689420979289441*^9}, 3.689421160175202*^9, 3.689421398766038*^9, {
+   3.6894214655115395`*^9, 3.6894214883689404`*^9}, {3.6894215718086977`*^9, 
+   3.689421588318844*^9}, 3.6894622054174285`*^9, 3.6894624590240793`*^9, 
+   3.6894625460680366`*^9, 3.689462586252926*^9, {3.6894793587993264`*^9, 
+   3.689479382721857*^9}, {3.689483401639732*^9, 3.689483470207181*^9}, 
+   3.6894835252554517`*^9, 3.689483624177908*^9, 3.6894971576774864`*^9, 
+   3.689497499616844*^9, 3.6894975311731677`*^9, {3.689497564603459*^9, 
+   3.689497574531392*^9}, 3.6895008778079157`*^9, 3.6895009781085377`*^9, {
+   3.6895010487509336`*^9, 3.689501096113432*^9}, 3.6895028059453373`*^9, 
+   3.6895028869089017`*^9, 3.6895036984304543`*^9, 3.6895037827232876`*^9, {
+   3.689503857703983*^9, 3.689503868611997*^9}, 3.6895040837448997`*^9, 
+   3.689504142973138*^9, {3.6895044188816137`*^9, 3.68950442875068*^9}, {
+   3.6895044678389206`*^9, 3.6895044966831417`*^9}, {3.689507686789071*^9, 
+   3.6895077161873484`*^9}, {3.6895077542466636`*^9, 
+   3.6895077722084274`*^9}, {3.6895078388800306`*^9, 3.689507864805679*^9}, {
+   3.689507941309239*^9, 3.6895079916179085`*^9}, 3.689508556418796*^9, 
+   3.6895086129483504`*^9, 3.6895395155852065`*^9, {3.6895396196584125`*^9, 
+   3.6895396445154*^9}, {3.689539749196626*^9, 3.6895397606058083`*^9}, 
+   3.6895450530308776`*^9, 3.6895450919322968`*^9, {3.689545145599291*^9, 
+   3.6895451957906523`*^9}, 3.6895455349738274`*^9, 3.6895456025422773`*^9, 
+   3.6895456639006968`*^9, {3.6895457715980077`*^9, 3.6895458001217976`*^9}, 
+   3.689549520108173*^9, 3.6895498426961317`*^9, 3.6895499516513057`*^9, {
+   3.689549991378212*^9, 3.6895500063981285`*^9}, 3.6895507071522293`*^9, {
+   3.68955076937289*^9, 3.6895507994821897`*^9}, 3.6895508650594454`*^9, 
+   3.6895510153429937`*^9, 3.6895510528303075`*^9, {3.6895591301661854`*^9, 
+   3.689559141482995*^9}, 3.6895592677825327`*^9, 3.6895593581439314`*^9, 
+   3.6895594441649103`*^9, {3.689559490662642*^9, 3.6895595129362516`*^9}, {
+   3.6895596723339453`*^9, 3.689559708742633*^9}, 3.6895600767630725`*^9, 
+   3.6895601328691573`*^9, {3.6895602785989237`*^9, 3.689560293104822*^9}, 
+   3.689560384352738*^9, 3.689560504937393*^9, 3.6895607775639377`*^9, 
+   3.689561603638101*^9, {3.6895628915046334`*^9, 3.689562920851449*^9}, 
+   3.6895629894777927`*^9, 3.689563032817224*^9, 3.6895631175778337`*^9, 
+   3.689563354633584*^9, 3.6895634737424555`*^9, 3.689563873183494*^9, 
+   3.6895639507003217`*^9, 3.689564065235243*^9, 3.6895641691006565`*^9, {
+   3.689564294635316*^9, 3.6895643058412905`*^9}, 3.689565333287341*^9, 
+   3.6895653882464046`*^9, 3.689565736471138*^9, 3.689573375195567*^9, {
+   3.6895870461687317`*^9, 3.689587059514541*^9}, 3.6895931497953763`*^9, 
+   3.6895959570002513`*^9, 3.689596501884266*^9, 3.6895965802921615`*^9, {
+   3.6895968611093063`*^9, 3.6895968844366055`*^9}, 3.689597266136578*^9, 
+   3.6895972971873293`*^9, 3.6895973999528837`*^9, 3.6895975045797124`*^9, 
+   3.6895977754018955`*^9, 3.689597903605029*^9, 3.689598010429315*^9, 
+   3.6895983658313656`*^9, 3.689598502777651*^9, {3.6895985968980584`*^9, 
+   3.6895986212694006`*^9}, {3.689598677182551*^9, 3.6895986979773464`*^9}, 
+   3.689626194320238*^9, 3.6896263566564574`*^9, 3.68962670869491*^9, 
+   3.6903714207239604`*^9, 3.690371519437381*^9, {3.6903715677150397`*^9, 
+   3.690371573296462*^9}, 3.6903716622556405`*^9, 3.690371939211844*^9, 
+   3.6903721408386035`*^9, 3.69037238316605*^9, 3.690373184164107*^9, 
+   3.690373866676754*^9, 3.6903740895385947`*^9, 3.690374227670695*^9, 
+   3.690374458994117*^9, 3.690374725212438*^9, 3.6903747557392783`*^9, 
+   3.69037529480322*^9, 3.6903756450263014`*^9, 3.6903764148426113`*^9, 
+   3.6903768869240923`*^9, 3.690377030287182*^9, 3.6903771773061996`*^9, 
+   3.690377269148633*^9, 3.6903773707727156`*^9, 3.6903774907498727`*^9, 
+   3.6903776688661094`*^9, 3.690377799489647*^9, 3.6903781547914963`*^9, {
+   3.690378195667943*^9, 3.690378217120721*^9}, 3.6903783652510157`*^9, 
+   3.6903784386386805`*^9, 3.690378498809449*^9, 3.6903785453046355`*^9, 
+   3.6903785981913147`*^9, 3.690378665602864*^9, 3.690378742490054*^9, 
+   3.6903789194089823`*^9, 3.690379047971451*^9, 3.6903791075507603`*^9, 
+   3.6903792446359234`*^9, 3.690379307153366*^9, 3.690379347337619*^9, 
+   3.6903793894674463`*^9, 3.6903794264044104`*^9, {3.690379510455427*^9, 
+   3.690379538425229*^9}, {3.690379581535863*^9, 3.6903796026714153`*^9}, 
+   3.6903797112961407`*^9, 3.6904156676816945`*^9, 3.69041595291917*^9, 
+   3.690416126593295*^9, {3.6904161703707376`*^9, 3.690416221806862*^9}, 
+   3.690416424039303*^9, {3.69041648143585*^9, 3.6904164918579397`*^9}, 
+   3.6904165262973557`*^9, 3.690416789790436*^9, 3.690417398887677*^9, 
+   3.6904179231250744`*^9, 3.690422668002733*^9, 3.6905099813278*^9, 
+   3.6905979137283573`*^9, 3.690598216601637*^9, 3.6905994640646*^9, 
+   3.6905997885853386`*^9},
+ CellID->675076384]
+}, {2}]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["", "ManipulateCaptionSection"],
+
+Cell["\<\
+This project implements an elevator group control system. An elevator group \
+control algorithm based on the principle of minimizing the total waiting and \
+travelling time of a passenger is developed, with outer control panels with \
+inputs of passengers' destination floors are assumed to be used to provide \
+necessary information for optimization. A platform for visualizing elevator \
+group control system is developed in accordance. As long as the same \
+variables recording the elevator states and request queues defined in the \
+beginning of the initialization code part are used, any other algorithm can \
+be used to replace the current algorithm implemented here.\
+\>", "ManipulateCaption",
+ CellChangeTimes->{{3.690422768240738*^9, 3.690422830677799*^9}, {
+   3.690598317371109*^9, 3.690598517595721*^9}, 3.6905987748884296`*^9, {
+   3.690598816373046*^9, 3.6905989342074566`*^9}, {3.6905989737152615`*^9, 
+   3.6905991756358566`*^9}, {3.690599362477289*^9, 3.6905993686355515`*^9}, {
+   3.6905998419541874`*^9, 3.6905998432545624`*^9}},
+ CellID->580849337]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["", "ThumbnailSection"],
+
+Cell[BoxData[
+ Graphics3DBox[{
+   {Opacity[0.1], CuboidBox[{-2, 2, 0}, {8, -2, 10.1}], 
+    CuboidBox[{-2, 2, -0.1}, {8, -2, 0.05}], 
+    CuboidBox[{-2, 2, 1.15}, {8, -2, 1.2}], 
+    CuboidBox[{-2, 2, 2.35}, {8, -2, 2.4}], 
+    CuboidBox[{-2, 2, 3.55}, {8, -2, 3.6}], 
+    CuboidBox[{-2, 2, 4.75}, {8, -2, 4.8}], 
+    CuboidBox[{-2, 2, 5.95}, {8, -2, 6.}], 
+    CuboidBox[{-2, 2, 7.15}, {8, -2, 7.2}], 
+    CuboidBox[{-2, 2, 8.35}, {8, -2, 8.4}], 
+    CuboidBox[{-0.6, 0.2, 0}, {-0.5, -1.2, 9.99}], 
+    CuboidBox[{1.5, 0.2, 0}, {1.6, -1.2, 9.99}], 
+    CuboidBox[{-0.5, 0.2, 0}, {0.1, 0.1, 9.99}], 
+    CuboidBox[{-0.5, -1.1, 0}, {0.1, -1.2, 9.99}], 
+    GeometricTransformation3DBox[{CuboidBox[{-0.5, 0.2, 0}, {0.1, 0.1, 9.99}],
+       CuboidBox[{-0.5, -1.1, 0}, {0.1, -1.2, 9.99}]}, {1.4, 0, 0}], 
+    GeometricTransformation3DBox[
+     CuboidBox[{-0.6, 0.2, 0}, {-0.5, -1.2, 9.99}], {3, 0, 0}], 
+    GeometricTransformation3DBox[
+     CuboidBox[{1.5, 0.2, 0}, {1.6, -1.2, 9.99}], {3, 0, 0}], 
+    GeometricTransformation3DBox[
+     CuboidBox[{-0.5, 0.2, 0}, {0.1, 0.1, 9.99}], {3, 0, 0}], 
+    GeometricTransformation3DBox[
+     CuboidBox[{-0.5, -1.1, 0}, {0.1, -1.2, 9.99}], {3, 0, 0}], 
+    GeometricTransformation3DBox[{
+      GeometricTransformation3DBox[
+       CuboidBox[{-0.5, 0.2, 0}, {0.1, 0.1, 9.99}], {3, 0, 0}], 
+      GeometricTransformation3DBox[
+       CuboidBox[{-0.5, -1.1, 0}, {0.1, -1.2, 9.99}], {3, 0, 0}]}, {
+     1.4, 0, 0}], 
+    GeometricTransformation3DBox[
+     CuboidBox[{-0.6, 0.2, 0}, {-0.5, -1.2, 9.99}], {6, 0, 0}], 
+    GeometricTransformation3DBox[
+     CuboidBox[{1.5, 0.2, 0}, {1.6, -1.2, 9.99}], {6, 0, 0}], 
+    GeometricTransformation3DBox[
+     CuboidBox[{-0.5, 0.2, 0}, {0.1, 0.1, 9.99}], {6, 0, 0}], 
+    GeometricTransformation3DBox[
+     CuboidBox[{-0.5, -1.1, 0}, {0.1, -1.2, 9.99}], {6, 0, 0}], 
+    GeometricTransformation3DBox[{
+      GeometricTransformation3DBox[
+       CuboidBox[{-0.5, 0.2, 0}, {0.1, 0.1, 9.99}], {6, 0, 0}], 
+      GeometricTransformation3DBox[
+       CuboidBox[{-0.5, -1.1, 0}, {0.1, -1.2, 9.99}], {6, 0, 0}]}, {
+     1.4, 0, 0}]}, 
+   {RGBColor[0, 0, 1], 
+    CylinderBox[{{0.5, -0.45, 9.9}, {0.5, -0.55, 9.9}}, 0.1], 
+    CylinderBox[{{0, -0.45, 9.9}, {0, -0.55, 9.9}}, 0.1], 
+    GeometricTransformation3DBox[
+     CylinderBox[{{0.5, -0.45, 9.9}, {0.5, -0.55, 9.9}}, 0.1], {3, 0, 0}], 
+    GeometricTransformation3DBox[
+     CylinderBox[{{0, -0.45, 9.9}, {0, -0.55, 9.9}}, 0.1], {3, 0, 0}], 
+    GeometricTransformation3DBox[
+     CylinderBox[{{0.5, -0.45, 9.9}, {0.5, -0.55, 9.9}}, 0.1], {6, 0, 0}], 
+    GeometricTransformation3DBox[
+     CylinderBox[{{0, -0.45, 9.9}, {0, -0.55, 9.9}}, 0.1], {6, 0, 0}]}, 
+   Line3DBox[{{0.6, -0.499, 5.85}, {0.6, -0.499, 9.9}}], 
+   Line3DBox[{{3.6, -0.499, 7.049999999999999}, {3.6, -0.499, 9.9}}], 
+   Line3DBox[{{6.6, -0.499, 2.2500000000000013`}, {6.6, -0.499, 9.9}}], 
+   Line3DBox[{{0.5, -0.5, 10}, {0, -0.5, 10}}], 
+   GeometricTransformation3DBox[Line3DBox[{{0.5, -0.5, 10}, {0, -0.5, 10}}], {
+    3, 0, 0}], 
+   GeometricTransformation3DBox[Line3DBox[{{0.5, -0.5, 10}, {0, -0.5, 10}}], {
+    6, 0, 0}], 
+   {GrayLevel[0], CuboidBox[{{0, -0.4, 9.9}, {-0.2, -0.6, 0}}]}, 
+   GeometricTransformation3DBox[
+    {GrayLevel[0], CuboidBox[{{0, -0.4, 9.9}, {-0.2, -0.6, 0}}]}, {3, 0, 0}], 
+   GeometricTransformation3DBox[
+    {GrayLevel[0], CuboidBox[{{0, -0.4, 9.9}, {-0.2, -0.6, 0}}]}, {6, 0, 0}], 
+   GeometricTransformation3DBox[{
+     {RGBColor[1, 0.5, 0], CuboidBox[{0, 0.1, 0}, {1, -1.1, -0.1}]}, 
+     {RGBColor[1, 0.5, 0], CuboidBox[{0, 0.1, 1}, {1, -1.1, 1.1}]}, 
+     {RGBColor[1, 0.5, 0], CuboidBox[{0, 0, 0}, {0.1, -1, 1}]}, 
+     {RGBColor[1, 0.5, 0], CuboidBox[{1, 0, 0}, {0.9, -1, 1}]}, 
+     {GrayLevel[0.5], 
+      GeometricTransformation3DBox[CuboidBox[{0, -1, 0}, {0.5, -1.1, 1}], {0, 
+       0, 0}]}, 
+     {GrayLevel[0.5], 
+      GeometricTransformation3DBox[CuboidBox[{0, 0, 0}, {0.5, 0.1, 1}], {0, 0,
+        0}]}, GeometricTransformation3DBox[GeometricTransformation3DBox[
+       {GrayLevel[0.5], 
+        GeometricTransformation3DBox[CuboidBox[{0, 0, 0}, {0.5, 0.1, 1}], {0, 
+         0, 0}]}, {{-1, 0, 0}, {0, -1, 0}, {0, 0, 1}}], {1, 0.1, 0}], 
+     GeometricTransformation3DBox[GeometricTransformation3DBox[
+       {GrayLevel[0.5], 
+        GeometricTransformation3DBox[CuboidBox[{0, -1, 0}, {0.5, -1.1, 1}], {
+         0, 0, 0}]}, {{-1, 0, 0}, {0, -1, 0}, {0, 0, 1}}], {1, -2.1, 0}]}, {
+    0, 0, 4.85}], GeometricTransformation3DBox[
+    {RGBColor[1, 0, 0], CuboidBox[{-0.2, 0, 9.8}, {-0.3, -1, 9}]}, {
+    0, 0, -4.85}], GeometricTransformation3DBox[{GeometricTransformation3DBox[
+      {RGBColor[1, 0.5, 0], CuboidBox[{0, 0.1, 0}, {1, -1.1, -0.1}]}, {3, 0, 
+      0}], GeometricTransformation3DBox[
+      {RGBColor[1, 0.5, 0], CuboidBox[{0, 0.1, 1}, {1, -1.1, 1.1}]}, {3, 0, 
+      0}], GeometricTransformation3DBox[
+      {RGBColor[1, 0.5, 0], CuboidBox[{0, 0, 0}, {0.1, -1, 1}]}, {3, 0, 0}], 
+     GeometricTransformation3DBox[
+      {RGBColor[1, 0.5, 0], CuboidBox[{1, 0, 0}, {0.9, -1, 1}]}, {3, 0, 0}], 
+     {GrayLevel[0.5], 
+      GeometricTransformation3DBox[
+       CuboidBox[{3, -1, 0}, {3.5, -1.1, 1}], {-0.5, 0, 0}]}, 
+     {GrayLevel[0.5], 
+      GeometricTransformation3DBox[CuboidBox[{3, 0, 0}, {3.5, 0.1, 1}], {0, 0,
+        0}]}, GeometricTransformation3DBox[GeometricTransformation3DBox[
+       {GrayLevel[0.5], 
+        GeometricTransformation3DBox[CuboidBox[{3, 0, 0}, {3.5, 0.1, 1}], {0, 
+         0, 0}]}, {{{-1, 0, 0}, {0, -1, 0}, {0, 0, 1}}, {6, 0, 0}}], {
+      1, 0.1, 0}], GeometricTransformation3DBox[GeometricTransformation3DBox[
+       {GrayLevel[0.5], 
+        GeometricTransformation3DBox[
+         CuboidBox[{3, -1, 0}, {3.5, -1.1, 1}], {-0.5, 0, 0}]}, {{{-1, 0, 
+        0}, {0, -1, 0}, {0, 0, 1}}, {6, 0, 0}}], {1, -2.1, 0}]}, {
+    0, 0, 6.049999999999999}], 
+   GeometricTransformation3DBox[GeometricTransformation3DBox[
+     {RGBColor[1, 0, 0], CuboidBox[{-0.2, 0, 9.8}, {-0.3, -1, 9}]}, {3, 0, 
+     0}], {0, 0, -6.049999999999999}], 
+   GeometricTransformation3DBox[{GeometricTransformation3DBox[
+      {RGBColor[1, 0.5, 0], CuboidBox[{0, 0.1, 0}, {1, -1.1, -0.1}]}, {6, 0, 
+      0}], GeometricTransformation3DBox[
+      {RGBColor[1, 0.5, 0], CuboidBox[{0, 0.1, 1}, {1, -1.1, 1.1}]}, {6, 0, 
+      0}], GeometricTransformation3DBox[
+      {RGBColor[1, 0.5, 0], CuboidBox[{0, 0, 0}, {0.1, -1, 1}]}, {6, 0, 0}], 
+     GeometricTransformation3DBox[
+      {RGBColor[1, 0.5, 0], CuboidBox[{1, 0, 0}, {0.9, -1, 1}]}, {6, 0, 0}], 
+     {GrayLevel[0.5], 
+      GeometricTransformation3DBox[CuboidBox[{6, -1, 0}, {6.5, -1.1, 1}], {0, 
+       0, 0}]}, 
+     {GrayLevel[0.5], 
+      GeometricTransformation3DBox[CuboidBox[{6, 0, 0}, {6.5, 0.1, 1}], {0, 0,
+        0}]}, GeometricTransformation3DBox[GeometricTransformation3DBox[
+       {GrayLevel[0.5], 
+        GeometricTransformation3DBox[CuboidBox[{6, 0, 0}, {6.5, 0.1, 1}], {0, 
+         0, 0}]}, {{{-1, 0, 0}, {0, -1, 0}, {0, 0, 1}}, {12, 0, 0}}], {
+      1, 0.1, 0}], GeometricTransformation3DBox[GeometricTransformation3DBox[
+       {GrayLevel[0.5], 
+        GeometricTransformation3DBox[CuboidBox[{6, -1, 0}, {6.5, -1.1, 1}], {
+         0, 0, 0}]}, {{{-1, 0, 0}, {0, -1, 0}, {0, 0, 1}}, {12, 0, 0}}], {
+      1, -2.1, 0}]}, {0, 0, 1.2500000000000013`}], 
+   GeometricTransformation3DBox[GeometricTransformation3DBox[
+     {RGBColor[1, 0, 0], CuboidBox[{-0.2, 0, 9.8}, {-0.3, -1, 9}]}, {6, 0, 
+     0}], {0, 0, -1.2500000000000013`}]},
+  Boxed->False,
+  ImageSize->{300, 450},
+  ViewPoint->{1.3323066220241973`, -2.3922240755841195`, 1.9880198784484469`},
+  ViewVertical->{0.004739672325055701, -0.006200206727101947, 
+   0.9999862478370507}]], "Output",
+ CellEditDuplicate->False,
+ GeneratedCell->False,
+ CellAutoOverwrite->False,
+ CellChangeTimes->{3.690599734236122*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["", "SnapshotsSection"],
+
+Cell[BoxData[
+ Graphics3DBox[{
+   {Opacity[0.1], CuboidBox[{-2, 2, 0}, {8, -2, 10.1}], 
+    CuboidBox[{-2, 2, -0.1}, {8, -2, 0.05}], 
+    CuboidBox[{-2, 2, 1.15}, {8, -2, 1.2}], 
+    CuboidBox[{-2, 2, 2.35}, {8, -2, 2.4}], 
+    CuboidBox[{-2, 2, 3.55}, {8, -2, 3.6}], 
+    CuboidBox[{-2, 2, 4.75}, {8, -2, 4.8}], 
+    CuboidBox[{-2, 2, 5.95}, {8, -2, 6.}], 
+    CuboidBox[{-2, 2, 7.15}, {8, -2, 7.2}], 
+    CuboidBox[{-2, 2, 8.35}, {8, -2, 8.4}], 
+    CuboidBox[{-0.6, 0.2, 0}, {-0.5, -1.2, 9.99}], 
+    CuboidBox[{1.5, 0.2, 0}, {1.6, -1.2, 9.99}], 
+    CuboidBox[{-0.5, 0.2, 0}, {0.1, 0.1, 9.99}], 
+    CuboidBox[{-0.5, -1.1, 0}, {0.1, -1.2, 9.99}], 
+    GeometricTransformation3DBox[{CuboidBox[{-0.5, 0.2, 0}, {0.1, 0.1, 9.99}],
+       CuboidBox[{-0.5, -1.1, 0}, {0.1, -1.2, 9.99}]}, {1.4, 0, 0}], 
+    GeometricTransformation3DBox[
+     CuboidBox[{-0.6, 0.2, 0}, {-0.5, -1.2, 9.99}], {3, 0, 0}], 
+    GeometricTransformation3DBox[
+     CuboidBox[{1.5, 0.2, 0}, {1.6, -1.2, 9.99}], {3, 0, 0}], 
+    GeometricTransformation3DBox[
+     CuboidBox[{-0.5, 0.2, 0}, {0.1, 0.1, 9.99}], {3, 0, 0}], 
+    GeometricTransformation3DBox[
+     CuboidBox[{-0.5, -1.1, 0}, {0.1, -1.2, 9.99}], {3, 0, 0}], 
+    GeometricTransformation3DBox[{
+      GeometricTransformation3DBox[
+       CuboidBox[{-0.5, 0.2, 0}, {0.1, 0.1, 9.99}], {3, 0, 0}], 
+      GeometricTransformation3DBox[
+       CuboidBox[{-0.5, -1.1, 0}, {0.1, -1.2, 9.99}], {3, 0, 0}]}, {
+     1.4, 0, 0}], 
+    GeometricTransformation3DBox[
+     CuboidBox[{-0.6, 0.2, 0}, {-0.5, -1.2, 9.99}], {6, 0, 0}], 
+    GeometricTransformation3DBox[
+     CuboidBox[{1.5, 0.2, 0}, {1.6, -1.2, 9.99}], {6, 0, 0}], 
+    GeometricTransformation3DBox[
+     CuboidBox[{-0.5, 0.2, 0}, {0.1, 0.1, 9.99}], {6, 0, 0}], 
+    GeometricTransformation3DBox[
+     CuboidBox[{-0.5, -1.1, 0}, {0.1, -1.2, 9.99}], {6, 0, 0}], 
+    GeometricTransformation3DBox[{
+      GeometricTransformation3DBox[
+       CuboidBox[{-0.5, 0.2, 0}, {0.1, 0.1, 9.99}], {6, 0, 0}], 
+      GeometricTransformation3DBox[
+       CuboidBox[{-0.5, -1.1, 0}, {0.1, -1.2, 9.99}], {6, 0, 0}]}, {
+     1.4, 0, 0}]}, 
+   {RGBColor[0, 0, 1], 
+    CylinderBox[{{0.5, -0.45, 9.9}, {0.5, -0.55, 9.9}}, 0.1], 
+    CylinderBox[{{0, -0.45, 9.9}, {0, -0.55, 9.9}}, 0.1], 
+    GeometricTransformation3DBox[
+     CylinderBox[{{0.5, -0.45, 9.9}, {0.5, -0.55, 9.9}}, 0.1], {3, 0, 0}], 
+    GeometricTransformation3DBox[
+     CylinderBox[{{0, -0.45, 9.9}, {0, -0.55, 9.9}}, 0.1], {3, 0, 0}], 
+    GeometricTransformation3DBox[
+     CylinderBox[{{0.5, -0.45, 9.9}, {0.5, -0.55, 9.9}}, 0.1], {6, 0, 0}], 
+    GeometricTransformation3DBox[
+     CylinderBox[{{0, -0.45, 9.9}, {0, -0.55, 9.9}}, 0.1], {6, 0, 0}]}, 
+   Line3DBox[{{0.6, -0.499, 1.05}, {0.6, -0.499, 9.9}}], 
+   Line3DBox[{{3.6, -0.499, 5.85}, {3.6, -0.499, 9.9}}], 
+   Line3DBox[{{6.6, -0.499, 9.45}, {6.6, -0.499, 9.9}}], 
+   Line3DBox[{{0.5, -0.5, 10}, {0, -0.5, 10}}], 
+   GeometricTransformation3DBox[Line3DBox[{{0.5, -0.5, 10}, {0, -0.5, 10}}], {
+    3, 0, 0}], 
+   GeometricTransformation3DBox[Line3DBox[{{0.5, -0.5, 10}, {0, -0.5, 10}}], {
+    6, 0, 0}], 
+   {GrayLevel[0], CuboidBox[{{0, -0.4, 9.9}, {-0.2, -0.6, 0}}]}, 
+   GeometricTransformation3DBox[
+    {GrayLevel[0], CuboidBox[{{0, -0.4, 9.9}, {-0.2, -0.6, 0}}]}, {3, 0, 0}], 
+   GeometricTransformation3DBox[
+    {GrayLevel[0], CuboidBox[{{0, -0.4, 9.9}, {-0.2, -0.6, 0}}]}, {6, 0, 0}], 
+   GeometricTransformation3DBox[{
+     {RGBColor[1, 0.5, 0], CuboidBox[{0, 0.1, 0}, {1, -1.1, -0.1}]}, 
+     {RGBColor[1, 0.5, 0], CuboidBox[{0, 0.1, 1}, {1, -1.1, 1.1}]}, 
+     {RGBColor[1, 0.5, 0], CuboidBox[{0, 0, 0}, {0.1, -1, 1}]}, 
+     {RGBColor[1, 0.5, 0], CuboidBox[{1, 0, 0}, {0.9, -1, 1}]}, 
+     {GrayLevel[0.5], 
+      GeometricTransformation3DBox[CuboidBox[{0, -1, 0}, {0.5, -1.1, 1}], {0, 
+       0, 0}]}, 
+     {GrayLevel[0.5], 
+      GeometricTransformation3DBox[CuboidBox[{0, 0, 0}, {0.5, 0.1, 1}], {0, 0,
+        0}]}, GeometricTransformation3DBox[GeometricTransformation3DBox[
+       {GrayLevel[0.5], 
+        GeometricTransformation3DBox[CuboidBox[{0, 0, 0}, {0.5, 0.1, 1}], {0, 
+         0, 0}]}, {{-1, 0, 0}, {0, -1, 0}, {0, 0, 1}}], {1, 0.1, 0}], 
+     GeometricTransformation3DBox[GeometricTransformation3DBox[
+       {GrayLevel[0.5], 
+        GeometricTransformation3DBox[CuboidBox[{0, -1, 0}, {0.5, -1.1, 1}], {
+         0, 0, 0}]}, {{-1, 0, 0}, {0, -1, 0}, {0, 0, 1}}], {1, -2.1, 0}]}, {
+    0, 0, 0.05}], GeometricTransformation3DBox[
+    {RGBColor[1, 0, 0], CuboidBox[{-0.2, 0, 9.8}, {-0.3, -1, 9}]}, {
+    0, 0, -0.05}], GeometricTransformation3DBox[{GeometricTransformation3DBox[
+      {RGBColor[1, 0.5, 0], CuboidBox[{0, 0.1, 0}, {1, -1.1, -0.1}]}, {3, 0, 
+      0}], GeometricTransformation3DBox[
+      {RGBColor[1, 0.5, 0], CuboidBox[{0, 0.1, 1}, {1, -1.1, 1.1}]}, {3, 0, 
+      0}], GeometricTransformation3DBox[
+      {RGBColor[1, 0.5, 0], CuboidBox[{0, 0, 0}, {0.1, -1, 1}]}, {3, 0, 0}], 
+     GeometricTransformation3DBox[
+      {RGBColor[1, 0.5, 0], CuboidBox[{1, 0, 0}, {0.9, -1, 1}]}, {3, 0, 0}], 
+     {GrayLevel[0.5], 
+      GeometricTransformation3DBox[CuboidBox[{3, -1, 0}, {3.5, -1.1, 1}], {0, 
+       0, 0}]}, 
+     {GrayLevel[0.5], 
+      GeometricTransformation3DBox[CuboidBox[{3, 0, 0}, {3.5, 0.1, 1}], {0, 0,
+        0}]}, GeometricTransformation3DBox[GeometricTransformation3DBox[
+       {GrayLevel[0.5], 
+        GeometricTransformation3DBox[CuboidBox[{3, 0, 0}, {3.5, 0.1, 1}], {0, 
+         0, 0}]}, {{{-1, 0, 0}, {0, -1, 0}, {0, 0, 1}}, {6, 0, 0}}], {
+      1, 0.1, 0}], GeometricTransformation3DBox[GeometricTransformation3DBox[
+       {GrayLevel[0.5], 
+        GeometricTransformation3DBox[CuboidBox[{3, -1, 0}, {3.5, -1.1, 1}], {
+         0, 0, 0}]}, {{{-1, 0, 0}, {0, -1, 0}, {0, 0, 1}}, {6, 0, 0}}], {
+      1, -2.1, 0}]}, {0, 0, 4.85}], 
+   GeometricTransformation3DBox[GeometricTransformation3DBox[
+     {RGBColor[1, 0, 0], CuboidBox[{-0.2, 0, 9.8}, {-0.3, -1, 9}]}, {3, 0, 
+     0}], {0, 0, -4.85}], 
+   GeometricTransformation3DBox[{GeometricTransformation3DBox[
+      {RGBColor[1, 0.5, 0], CuboidBox[{0, 0.1, 0}, {1, -1.1, -0.1}]}, {6, 0, 
+      0}], GeometricTransformation3DBox[
+      {RGBColor[1, 0.5, 0], CuboidBox[{0, 0.1, 1}, {1, -1.1, 1.1}]}, {6, 0, 
+      0}], GeometricTransformation3DBox[
+      {RGBColor[1, 0.5, 0], CuboidBox[{0, 0, 0}, {0.1, -1, 1}]}, {6, 0, 0}], 
+     GeometricTransformation3DBox[
+      {RGBColor[1, 0.5, 0], CuboidBox[{1, 0, 0}, {0.9, -1, 1}]}, {6, 0, 0}], 
+     {GrayLevel[0.5], 
+      GeometricTransformation3DBox[CuboidBox[{6, -1, 0}, {6.5, -1.1, 1}], {0, 
+       0, 0}]}, 
+     {GrayLevel[0.5], 
+      GeometricTransformation3DBox[CuboidBox[{6, 0, 0}, {6.5, 0.1, 1}], {0, 0,
+        0}]}, GeometricTransformation3DBox[GeometricTransformation3DBox[
+       {GrayLevel[0.5], 
+        GeometricTransformation3DBox[CuboidBox[{6, 0, 0}, {6.5, 0.1, 1}], {0, 
+         0, 0}]}, {{{-1, 0, 0}, {0, -1, 0}, {0, 0, 1}}, {12, 0, 0}}], {
+      1, 0.1, 0}], GeometricTransformation3DBox[GeometricTransformation3DBox[
+       {GrayLevel[0.5], 
+        GeometricTransformation3DBox[CuboidBox[{6, -1, 0}, {6.5, -1.1, 1}], {
+         0, 0, 0}]}, {{{-1, 0, 0}, {0, -1, 0}, {0, 0, 1}}, {12, 0, 0}}], {
+      1, -2.1, 0}]}, {0, 0, 8.45}], 
+   GeometricTransformation3DBox[GeometricTransformation3DBox[
+     {RGBColor[1, 0, 0], CuboidBox[{-0.2, 0, 9.8}, {-0.3, -1, 9}]}, {6, 0, 
+     0}], {0, 0, -8.45}]},
+  Boxed->False,
+  ImageMargins->0.,
+  ImageSize->{300, 450},
+  ViewPoint->{1.3323066220241973`, -2.3922240755841195`, 1.9880198784484469`},
+  ViewVertical->{0.004739672325055701, -0.006200206727101947, 
+   0.9999862478370507}]], "Output",
+ CellEditDuplicate->False,
+ GeneratedCell->False,
+ CellAutoOverwrite->False,
+ CellChangeTimes->{{3.690599642790639*^9, 3.6905996684723773`*^9}, {
+  3.690599702640386*^9, 3.6905997123092365`*^9}, {3.6905997624637794`*^9, 
+  3.690599769120082*^9}, {3.690600032410454*^9, 3.69060005507843*^9}}],
+
+Cell[BoxData[
+ Graphics3DBox[{
+   {Opacity[0.1], CuboidBox[{-2, 2, 0}, {8, -2, 10.1}], 
+    CuboidBox[{-2, 2, -0.1}, {8, -2, 0.05}], 
+    CuboidBox[{-2, 2, 1.15}, {8, -2, 1.2}], 
+    CuboidBox[{-2, 2, 2.35}, {8, -2, 2.4}], 
+    CuboidBox[{-2, 2, 3.55}, {8, -2, 3.6}], 
+    CuboidBox[{-2, 2, 4.75}, {8, -2, 4.8}], 
+    CuboidBox[{-2, 2, 5.95}, {8, -2, 6.}], 
+    CuboidBox[{-2, 2, 7.15}, {8, -2, 7.2}], 
+    CuboidBox[{-2, 2, 8.35}, {8, -2, 8.4}], 
+    CuboidBox[{-0.6, 0.2, 0}, {-0.5, -1.2, 9.99}], 
+    CuboidBox[{1.5, 0.2, 0}, {1.6, -1.2, 9.99}], 
+    CuboidBox[{-0.5, 0.2, 0}, {0.1, 0.1, 9.99}], 
+    CuboidBox[{-0.5, -1.1, 0}, {0.1, -1.2, 9.99}], 
+    GeometricTransformation3DBox[{CuboidBox[{-0.5, 0.2, 0}, {0.1, 0.1, 9.99}],
+       CuboidBox[{-0.5, -1.1, 0}, {0.1, -1.2, 9.99}]}, {1.4, 0, 0}], 
+    GeometricTransformation3DBox[
+     CuboidBox[{-0.6, 0.2, 0}, {-0.5, -1.2, 9.99}], {3, 0, 0}], 
+    GeometricTransformation3DBox[
+     CuboidBox[{1.5, 0.2, 0}, {1.6, -1.2, 9.99}], {3, 0, 0}], 
+    GeometricTransformation3DBox[
+     CuboidBox[{-0.5, 0.2, 0}, {0.1, 0.1, 9.99}], {3, 0, 0}], 
+    GeometricTransformation3DBox[
+     CuboidBox[{-0.5, -1.1, 0}, {0.1, -1.2, 9.99}], {3, 0, 0}], 
+    GeometricTransformation3DBox[{
+      GeometricTransformation3DBox[
+       CuboidBox[{-0.5, 0.2, 0}, {0.1, 0.1, 9.99}], {3, 0, 0}], 
+      GeometricTransformation3DBox[
+       CuboidBox[{-0.5, -1.1, 0}, {0.1, -1.2, 9.99}], {3, 0, 0}]}, {
+     1.4, 0, 0}], 
+    GeometricTransformation3DBox[
+     CuboidBox[{-0.6, 0.2, 0}, {-0.5, -1.2, 9.99}], {6, 0, 0}], 
+    GeometricTransformation3DBox[
+     CuboidBox[{1.5, 0.2, 0}, {1.6, -1.2, 9.99}], {6, 0, 0}], 
+    GeometricTransformation3DBox[
+     CuboidBox[{-0.5, 0.2, 0}, {0.1, 0.1, 9.99}], {6, 0, 0}], 
+    GeometricTransformation3DBox[
+     CuboidBox[{-0.5, -1.1, 0}, {0.1, -1.2, 9.99}], {6, 0, 0}], 
+    GeometricTransformation3DBox[{
+      GeometricTransformation3DBox[
+       CuboidBox[{-0.5, 0.2, 0}, {0.1, 0.1, 9.99}], {6, 0, 0}], 
+      GeometricTransformation3DBox[
+       CuboidBox[{-0.5, -1.1, 0}, {0.1, -1.2, 9.99}], {6, 0, 0}]}, {
+     1.4, 0, 0}]}, 
+   {RGBColor[0, 0, 1], 
+    CylinderBox[{{0.5, -0.45, 9.9}, {0.5, -0.55, 9.9}}, 0.1], 
+    CylinderBox[{{0, -0.45, 9.9}, {0, -0.55, 9.9}}, 0.1], 
+    GeometricTransformation3DBox[
+     CylinderBox[{{0.5, -0.45, 9.9}, {0.5, -0.55, 9.9}}, 0.1], {3, 0, 0}], 
+    GeometricTransformation3DBox[
+     CylinderBox[{{0, -0.45, 9.9}, {0, -0.55, 9.9}}, 0.1], {3, 0, 0}], 
+    GeometricTransformation3DBox[
+     CylinderBox[{{0.5, -0.45, 9.9}, {0.5, -0.55, 9.9}}, 0.1], {6, 0, 0}], 
+    GeometricTransformation3DBox[
+     CylinderBox[{{0, -0.45, 9.9}, {0, -0.55, 9.9}}, 0.1], {6, 0, 0}]}, 
+   Line3DBox[{{0.6, -0.499, 5.85}, {0.6, -0.499, 9.9}}], 
+   Line3DBox[{{3.6, -0.499, 7.049999999999999}, {3.6, -0.499, 9.9}}], 
+   Line3DBox[{{6.6, -0.499, 2.2500000000000013`}, {6.6, -0.499, 9.9}}], 
+   Line3DBox[{{0.5, -0.5, 10}, {0, -0.5, 10}}], 
+   GeometricTransformation3DBox[Line3DBox[{{0.5, -0.5, 10}, {0, -0.5, 10}}], {
+    3, 0, 0}], 
+   GeometricTransformation3DBox[Line3DBox[{{0.5, -0.5, 10}, {0, -0.5, 10}}], {
+    6, 0, 0}], 
+   {GrayLevel[0], CuboidBox[{{0, -0.4, 9.9}, {-0.2, -0.6, 0}}]}, 
+   GeometricTransformation3DBox[
+    {GrayLevel[0], CuboidBox[{{0, -0.4, 9.9}, {-0.2, -0.6, 0}}]}, {3, 0, 0}], 
+   GeometricTransformation3DBox[
+    {GrayLevel[0], CuboidBox[{{0, -0.4, 9.9}, {-0.2, -0.6, 0}}]}, {6, 0, 0}], 
+   GeometricTransformation3DBox[{
+     {RGBColor[1, 0.5, 0], CuboidBox[{0, 0.1, 0}, {1, -1.1, -0.1}]}, 
+     {RGBColor[1, 0.5, 0], CuboidBox[{0, 0.1, 1}, {1, -1.1, 1.1}]}, 
+     {RGBColor[1, 0.5, 0], CuboidBox[{0, 0, 0}, {0.1, -1, 1}]}, 
+     {RGBColor[1, 0.5, 0], CuboidBox[{1, 0, 0}, {0.9, -1, 1}]}, 
+     {GrayLevel[0.5], 
+      GeometricTransformation3DBox[CuboidBox[{0, -1, 0}, {0.5, -1.1, 1}], {0, 
+       0, 0}]}, 
+     {GrayLevel[0.5], 
+      GeometricTransformation3DBox[CuboidBox[{0, 0, 0}, {0.5, 0.1, 1}], {0, 0,
+        0}]}, GeometricTransformation3DBox[GeometricTransformation3DBox[
+       {GrayLevel[0.5], 
+        GeometricTransformation3DBox[CuboidBox[{0, 0, 0}, {0.5, 0.1, 1}], {0, 
+         0, 0}]}, {{-1, 0, 0}, {0, -1, 0}, {0, 0, 1}}], {1, 0.1, 0}], 
+     GeometricTransformation3DBox[GeometricTransformation3DBox[
+       {GrayLevel[0.5], 
+        GeometricTransformation3DBox[CuboidBox[{0, -1, 0}, {0.5, -1.1, 1}], {
+         0, 0, 0}]}, {{-1, 0, 0}, {0, -1, 0}, {0, 0, 1}}], {1, -2.1, 0}]}, {
+    0, 0, 4.85}], GeometricTransformation3DBox[
+    {RGBColor[1, 0, 0], CuboidBox[{-0.2, 0, 9.8}, {-0.3, -1, 9}]}, {
+    0, 0, -4.85}], GeometricTransformation3DBox[{GeometricTransformation3DBox[
+      {RGBColor[1, 0.5, 0], CuboidBox[{0, 0.1, 0}, {1, -1.1, -0.1}]}, {3, 0, 
+      0}], GeometricTransformation3DBox[
+      {RGBColor[1, 0.5, 0], CuboidBox[{0, 0.1, 1}, {1, -1.1, 1.1}]}, {3, 0, 
+      0}], GeometricTransformation3DBox[
+      {RGBColor[1, 0.5, 0], CuboidBox[{0, 0, 0}, {0.1, -1, 1}]}, {3, 0, 0}], 
+     GeometricTransformation3DBox[
+      {RGBColor[1, 0.5, 0], CuboidBox[{1, 0, 0}, {0.9, -1, 1}]}, {3, 0, 0}], 
+     {GrayLevel[0.5], 
+      GeometricTransformation3DBox[
+       CuboidBox[{3, -1, 0}, {3.5, -1.1, 1}], {-0.5, 0, 0}]}, 
+     {GrayLevel[0.5], 
+      GeometricTransformation3DBox[CuboidBox[{3, 0, 0}, {3.5, 0.1, 1}], {0, 0,
+        0}]}, GeometricTransformation3DBox[GeometricTransformation3DBox[
+       {GrayLevel[0.5], 
+        GeometricTransformation3DBox[CuboidBox[{3, 0, 0}, {3.5, 0.1, 1}], {0, 
+         0, 0}]}, {{{-1, 0, 0}, {0, -1, 0}, {0, 0, 1}}, {6, 0, 0}}], {
+      1, 0.1, 0}], GeometricTransformation3DBox[GeometricTransformation3DBox[
+       {GrayLevel[0.5], 
+        GeometricTransformation3DBox[
+         CuboidBox[{3, -1, 0}, {3.5, -1.1, 1}], {-0.5, 0, 0}]}, {{{-1, 0, 
+        0}, {0, -1, 0}, {0, 0, 1}}, {6, 0, 0}}], {1, -2.1, 0}]}, {
+    0, 0, 6.049999999999999}], 
+   GeometricTransformation3DBox[GeometricTransformation3DBox[
+     {RGBColor[1, 0, 0], CuboidBox[{-0.2, 0, 9.8}, {-0.3, -1, 9}]}, {3, 0, 
+     0}], {0, 0, -6.049999999999999}], 
+   GeometricTransformation3DBox[{GeometricTransformation3DBox[
+      {RGBColor[1, 0.5, 0], CuboidBox[{0, 0.1, 0}, {1, -1.1, -0.1}]}, {6, 0, 
+      0}], GeometricTransformation3DBox[
+      {RGBColor[1, 0.5, 0], CuboidBox[{0, 0.1, 1}, {1, -1.1, 1.1}]}, {6, 0, 
+      0}], GeometricTransformation3DBox[
+      {RGBColor[1, 0.5, 0], CuboidBox[{0, 0, 0}, {0.1, -1, 1}]}, {6, 0, 0}], 
+     GeometricTransformation3DBox[
+      {RGBColor[1, 0.5, 0], CuboidBox[{1, 0, 0}, {0.9, -1, 1}]}, {6, 0, 0}], 
+     {GrayLevel[0.5], 
+      GeometricTransformation3DBox[CuboidBox[{6, -1, 0}, {6.5, -1.1, 1}], {0, 
+       0, 0}]}, 
+     {GrayLevel[0.5], 
+      GeometricTransformation3DBox[CuboidBox[{6, 0, 0}, {6.5, 0.1, 1}], {0, 0,
+        0}]}, GeometricTransformation3DBox[GeometricTransformation3DBox[
+       {GrayLevel[0.5], 
+        GeometricTransformation3DBox[CuboidBox[{6, 0, 0}, {6.5, 0.1, 1}], {0, 
+         0, 0}]}, {{{-1, 0, 0}, {0, -1, 0}, {0, 0, 1}}, {12, 0, 0}}], {
+      1, 0.1, 0}], GeometricTransformation3DBox[GeometricTransformation3DBox[
+       {GrayLevel[0.5], 
+        GeometricTransformation3DBox[CuboidBox[{6, -1, 0}, {6.5, -1.1, 1}], {
+         0, 0, 0}]}, {{{-1, 0, 0}, {0, -1, 0}, {0, 0, 1}}, {12, 0, 0}}], {
+      1, -2.1, 0}]}, {0, 0, 1.2500000000000013`}], 
+   GeometricTransformation3DBox[GeometricTransformation3DBox[
+     {RGBColor[1, 0, 0], CuboidBox[{-0.2, 0, 9.8}, {-0.3, -1, 9}]}, {6, 0, 
+     0}], {0, 0, -1.2500000000000013`}]},
+  Boxed->False,
+  ImageSize->{300, 450},
+  ViewPoint->{1.3323066220241973`, -2.3922240755841195`, 1.9880198784484469`},
+  ViewVertical->{0.004739672325055701, -0.006200206727101947, 
+   0.9999862478370507}]], "Output",
+ CellID->151806917],
+
+Cell[BoxData[
+ Graphics3DBox[{
+   {Opacity[0.1], CuboidBox[{-2, 2, 0}, {8, -2, 10.1}], 
+    CuboidBox[{-2, 2, -0.1}, {8, -2, 0.05}], 
+    CuboidBox[{-2, 2, 1.15}, {8, -2, 1.2}], 
+    CuboidBox[{-2, 2, 2.35}, {8, -2, 2.4}], 
+    CuboidBox[{-2, 2, 3.55}, {8, -2, 3.6}], 
+    CuboidBox[{-2, 2, 4.75}, {8, -2, 4.8}], 
+    CuboidBox[{-2, 2, 5.95}, {8, -2, 6.}], 
+    CuboidBox[{-2, 2, 7.15}, {8, -2, 7.2}], 
+    CuboidBox[{-2, 2, 8.35}, {8, -2, 8.4}], 
+    CuboidBox[{-0.6, 0.2, 0}, {-0.5, -1.2, 9.99}], 
+    CuboidBox[{1.5, 0.2, 0}, {1.6, -1.2, 9.99}], 
+    CuboidBox[{-0.5, 0.2, 0}, {0.1, 0.1, 9.99}], 
+    CuboidBox[{-0.5, -1.1, 0}, {0.1, -1.2, 9.99}], 
+    GeometricTransformation3DBox[{CuboidBox[{-0.5, 0.2, 0}, {0.1, 0.1, 9.99}],
+       CuboidBox[{-0.5, -1.1, 0}, {0.1, -1.2, 9.99}]}, {1.4, 0, 0}], 
+    GeometricTransformation3DBox[
+     CuboidBox[{-0.6, 0.2, 0}, {-0.5, -1.2, 9.99}], {3, 0, 0}], 
+    GeometricTransformation3DBox[
+     CuboidBox[{1.5, 0.2, 0}, {1.6, -1.2, 9.99}], {3, 0, 0}], 
+    GeometricTransformation3DBox[
+     CuboidBox[{-0.5, 0.2, 0}, {0.1, 0.1, 9.99}], {3, 0, 0}], 
+    GeometricTransformation3DBox[
+     CuboidBox[{-0.5, -1.1, 0}, {0.1, -1.2, 9.99}], {3, 0, 0}], 
+    GeometricTransformation3DBox[{
+      GeometricTransformation3DBox[
+       CuboidBox[{-0.5, 0.2, 0}, {0.1, 0.1, 9.99}], {3, 0, 0}], 
+      GeometricTransformation3DBox[
+       CuboidBox[{-0.5, -1.1, 0}, {0.1, -1.2, 9.99}], {3, 0, 0}]}, {
+     1.4, 0, 0}], 
+    GeometricTransformation3DBox[
+     CuboidBox[{-0.6, 0.2, 0}, {-0.5, -1.2, 9.99}], {6, 0, 0}], 
+    GeometricTransformation3DBox[
+     CuboidBox[{1.5, 0.2, 0}, {1.6, -1.2, 9.99}], {6, 0, 0}], 
+    GeometricTransformation3DBox[
+     CuboidBox[{-0.5, 0.2, 0}, {0.1, 0.1, 9.99}], {6, 0, 0}], 
+    GeometricTransformation3DBox[
+     CuboidBox[{-0.5, -1.1, 0}, {0.1, -1.2, 9.99}], {6, 0, 0}], 
+    GeometricTransformation3DBox[{
+      GeometricTransformation3DBox[
+       CuboidBox[{-0.5, 0.2, 0}, {0.1, 0.1, 9.99}], {6, 0, 0}], 
+      GeometricTransformation3DBox[
+       CuboidBox[{-0.5, -1.1, 0}, {0.1, -1.2, 9.99}], {6, 0, 0}]}, {
+     1.4, 0, 0}]}, 
+   {RGBColor[0, 0, 1], 
+    CylinderBox[{{0.5, -0.45, 9.9}, {0.5, -0.55, 9.9}}, 0.1], 
+    CylinderBox[{{0, -0.45, 9.9}, {0, -0.55, 9.9}}, 0.1], 
+    GeometricTransformation3DBox[
+     CylinderBox[{{0.5, -0.45, 9.9}, {0.5, -0.55, 9.9}}, 0.1], {3, 0, 0}], 
+    GeometricTransformation3DBox[
+     CylinderBox[{{0, -0.45, 9.9}, {0, -0.55, 9.9}}, 0.1], {3, 0, 0}], 
+    GeometricTransformation3DBox[
+     CylinderBox[{{0.5, -0.45, 9.9}, {0.5, -0.55, 9.9}}, 0.1], {6, 0, 0}], 
+    GeometricTransformation3DBox[
+     CylinderBox[{{0, -0.45, 9.9}, {0, -0.55, 9.9}}, 0.1], {6, 0, 0}]}, 
+   Line3DBox[{{0.6, -0.499, 5.85}, {0.6, -0.499, 9.9}}], 
+   Line3DBox[{{3.6, -0.499, 7.049999999999999}, {3.6, -0.499, 9.9}}], 
+   Line3DBox[{{6.6, -0.499, 2.2500000000000013`}, {6.6, -0.499, 9.9}}], 
+   Line3DBox[{{0.5, -0.5, 10}, {0, -0.5, 10}}], 
+   GeometricTransformation3DBox[Line3DBox[{{0.5, -0.5, 10}, {0, -0.5, 10}}], {
+    3, 0, 0}], 
+   GeometricTransformation3DBox[Line3DBox[{{0.5, -0.5, 10}, {0, -0.5, 10}}], {
+    6, 0, 0}], 
+   {GrayLevel[0], CuboidBox[{{0, -0.4, 9.9}, {-0.2, -0.6, 0}}]}, 
+   GeometricTransformation3DBox[
+    {GrayLevel[0], CuboidBox[{{0, -0.4, 9.9}, {-0.2, -0.6, 0}}]}, {3, 0, 0}], 
+   GeometricTransformation3DBox[
+    {GrayLevel[0], CuboidBox[{{0, -0.4, 9.9}, {-0.2, -0.6, 0}}]}, {6, 0, 0}], 
+   GeometricTransformation3DBox[{
+     {RGBColor[1, 0.5, 0], CuboidBox[{0, 0.1, 0}, {1, -1.1, -0.1}]}, 
+     {RGBColor[1, 0.5, 0], CuboidBox[{0, 0.1, 1}, {1, -1.1, 1.1}]}, 
+     {RGBColor[1, 0.5, 0], CuboidBox[{0, 0, 0}, {0.1, -1, 1}]}, 
+     {RGBColor[1, 0.5, 0], CuboidBox[{1, 0, 0}, {0.9, -1, 1}]}, 
+     {GrayLevel[0.5], 
+      GeometricTransformation3DBox[CuboidBox[{0, -1, 0}, {0.5, -1.1, 1}], {0, 
+       0, 0}]}, 
+     {GrayLevel[0.5], 
+      GeometricTransformation3DBox[CuboidBox[{0, 0, 0}, {0.5, 0.1, 1}], {0, 0,
+        0}]}, GeometricTransformation3DBox[GeometricTransformation3DBox[
+       {GrayLevel[0.5], 
+        GeometricTransformation3DBox[CuboidBox[{0, 0, 0}, {0.5, 0.1, 1}], {0, 
+         0, 0}]}, {{-1, 0, 0}, {0, -1, 0}, {0, 0, 1}}], {1, 0.1, 0}], 
+     GeometricTransformation3DBox[GeometricTransformation3DBox[
+       {GrayLevel[0.5], 
+        GeometricTransformation3DBox[CuboidBox[{0, -1, 0}, {0.5, -1.1, 1}], {
+         0, 0, 0}]}, {{-1, 0, 0}, {0, -1, 0}, {0, 0, 1}}], {1, -2.1, 0}]}, {
+    0, 0, 4.85}], GeometricTransformation3DBox[
+    {RGBColor[1, 0, 0], CuboidBox[{-0.2, 0, 9.8}, {-0.3, -1, 9}]}, {
+    0, 0, -4.85}], GeometricTransformation3DBox[{GeometricTransformation3DBox[
+      {RGBColor[1, 0.5, 0], CuboidBox[{0, 0.1, 0}, {1, -1.1, -0.1}]}, {3, 0, 
+      0}], GeometricTransformation3DBox[
+      {RGBColor[1, 0.5, 0], CuboidBox[{0, 0.1, 1}, {1, -1.1, 1.1}]}, {3, 0, 
+      0}], GeometricTransformation3DBox[
+      {RGBColor[1, 0.5, 0], CuboidBox[{0, 0, 0}, {0.1, -1, 1}]}, {3, 0, 0}], 
+     GeometricTransformation3DBox[
+      {RGBColor[1, 0.5, 0], CuboidBox[{1, 0, 0}, {0.9, -1, 1}]}, {3, 0, 0}], 
+     {GrayLevel[0.5], 
+      GeometricTransformation3DBox[
+       CuboidBox[{3, -1, 0}, {3.5, -1.1, 1}], {-0.5, 0, 0}]}, 
+     {GrayLevel[0.5], 
+      GeometricTransformation3DBox[CuboidBox[{3, 0, 0}, {3.5, 0.1, 1}], {0, 0,
+        0}]}, GeometricTransformation3DBox[GeometricTransformation3DBox[
+       {GrayLevel[0.5], 
+        GeometricTransformation3DBox[CuboidBox[{3, 0, 0}, {3.5, 0.1, 1}], {0, 
+         0, 0}]}, {{{-1, 0, 0}, {0, -1, 0}, {0, 0, 1}}, {6, 0, 0}}], {
+      1, 0.1, 0}], GeometricTransformation3DBox[GeometricTransformation3DBox[
+       {GrayLevel[0.5], 
+        GeometricTransformation3DBox[
+         CuboidBox[{3, -1, 0}, {3.5, -1.1, 1}], {-0.5, 0, 0}]}, {{{-1, 0, 
+        0}, {0, -1, 0}, {0, 0, 1}}, {6, 0, 0}}], {1, -2.1, 0}]}, {
+    0, 0, 6.049999999999999}], 
+   GeometricTransformation3DBox[GeometricTransformation3DBox[
+     {RGBColor[1, 0, 0], CuboidBox[{-0.2, 0, 9.8}, {-0.3, -1, 9}]}, {3, 0, 
+     0}], {0, 0, -6.049999999999999}], 
+   GeometricTransformation3DBox[{GeometricTransformation3DBox[
+      {RGBColor[1, 0.5, 0], CuboidBox[{0, 0.1, 0}, {1, -1.1, -0.1}]}, {6, 0, 
+      0}], GeometricTransformation3DBox[
+      {RGBColor[1, 0.5, 0], CuboidBox[{0, 0.1, 1}, {1, -1.1, 1.1}]}, {6, 0, 
+      0}], GeometricTransformation3DBox[
+      {RGBColor[1, 0.5, 0], CuboidBox[{0, 0, 0}, {0.1, -1, 1}]}, {6, 0, 0}], 
+     GeometricTransformation3DBox[
+      {RGBColor[1, 0.5, 0], CuboidBox[{1, 0, 0}, {0.9, -1, 1}]}, {6, 0, 0}], 
+     {GrayLevel[0.5], 
+      GeometricTransformation3DBox[CuboidBox[{6, -1, 0}, {6.5, -1.1, 1}], {0, 
+       0, 0}]}, 
+     {GrayLevel[0.5], 
+      GeometricTransformation3DBox[CuboidBox[{6, 0, 0}, {6.5, 0.1, 1}], {0, 0,
+        0}]}, GeometricTransformation3DBox[GeometricTransformation3DBox[
+       {GrayLevel[0.5], 
+        GeometricTransformation3DBox[CuboidBox[{6, 0, 0}, {6.5, 0.1, 1}], {0, 
+         0, 0}]}, {{{-1, 0, 0}, {0, -1, 0}, {0, 0, 1}}, {12, 0, 0}}], {
+      1, 0.1, 0}], GeometricTransformation3DBox[GeometricTransformation3DBox[
+       {GrayLevel[0.5], 
+        GeometricTransformation3DBox[CuboidBox[{6, -1, 0}, {6.5, -1.1, 1}], {
+         0, 0, 0}]}, {{{-1, 0, 0}, {0, -1, 0}, {0, 0, 1}}, {12, 0, 0}}], {
+      1, -2.1, 0}]}, {0, 0, 1.2500000000000013`}], 
+   GeometricTransformation3DBox[GeometricTransformation3DBox[
+     {RGBColor[1, 0, 0], CuboidBox[{-0.2, 0, 9.8}, {-0.3, -1, 9}]}, {6, 0, 
+     0}], {0, 0, -1.2500000000000013`}]},
+  Boxed->False,
+  ImageSize->{300, 450},
+  ViewPoint->{-3.019359791747039, -1.4176899790156323`, 0.5688774660504087},
+  ViewVertical->{-0.4141952331480027, -0.47674546932023176`, 
+   0.8945112814041514}]], "Output",
+ CellID->527130816]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["", "DetailsSection"],
+
+Cell["\<\
+The elevator group control algorithm is developed to minimize the sum of the \
+waiting time for the elevator to come and the travelling time from the \
+current floor to the destination floor for a passenger with the constraint \
+that the elevator shall not change its current travelling direction to take \
+the passenger. The constraint is added to avoid specific passengers waiting \
+for too long in extreme cases. To implement this algorithm and visualize it, \
+the program is developed as follows:\
+\>", "DetailNotes",
+ CellChangeTimes->{{3.6905994747546253`*^9, 3.690599510168151*^9}, {
+  3.6905995533437767`*^9, 3.690599560899781*^9}, {3.6905999912350955`*^9, 
+  3.690599991572831*^9}, {3.690600226776478*^9, 3.6906002943121295`*^9}, {
+  3.6906164429900846`*^9, 3.6906164429900846`*^9}, {3.690616841387789*^9, 
+  3.690616937088109*^9}, {3.690617971845685*^9, 3.6906181562977686`*^9}, {
+  3.690618199537957*^9, 3.690618350389471*^9}, {3.6906185876614466`*^9, 
+  3.6906186151561823`*^9}},
+ CellID->357187802],
+
+Cell["\<\
+A series of variables are used for recording the operation state of the \
+elevators, with their possible values defined as constants in the first part \
+of the initialization code part. A list called callqueue is used to store all \
+unprocessed request, and three lists queue1, queue2, queue3 store the task \
+lists waited to be fulfilled in a proper order for three elevators \
+respectively.\
+\>", "DetailNotes",
+ CellChangeTimes->{{3.6905994747546253`*^9, 3.690599510168151*^9}, {
+   3.6905995533437767`*^9, 3.690599560899781*^9}, {3.6905999912350955`*^9, 
+   3.690599991572831*^9}, {3.690600226776478*^9, 3.6906002943121295`*^9}, {
+   3.6906164429900846`*^9, 3.6906164429900846`*^9}, {3.690616841387789*^9, 
+   3.690616937088109*^9}, {3.690617971845685*^9, 3.6906181562977686`*^9}, {
+   3.690618199537957*^9, 3.6906183256671467`*^9}, {3.690618355869588*^9, 
+   3.6906183645918837`*^9}, {3.690618579307111*^9, 3.6906185801270094`*^9}, {
+   3.6906186285657187`*^9, 3.690618713959233*^9}, 3.6906198780068364`*^9},
+ CellID->197773208],
+
+Cell["\<\
+The sampleGenerator function generates passenger requests at a given time.\
+\>", "DetailNotes",
+ CellChangeTimes->{{3.6905994747546253`*^9, 3.690599510168151*^9}, {
+  3.6905995533437767`*^9, 3.690599560899781*^9}, {3.6905999912350955`*^9, 
+  3.690599991572831*^9}, {3.690600226776478*^9, 3.6906002943121295`*^9}, {
+  3.6906164436349115`*^9, 3.690616490561589*^9}, {3.690618367376785*^9, 
+  3.6906183679142437`*^9}, {3.690618577089741*^9, 3.690618582139532*^9}},
+ CellID->141311493],
+
+Cell["\<\
+The elevatorAssign function calculates the time cost for each elevator to go \
+to the requesting floor and take the passenger to his/her destination floor \
+by mapping the timeCost function for three elevators, and assign the elevator \
+with lowest time cost to take the request. The time cost is a summation of \
+the time the elevator takes to directly travel from its current position to \
+the floor where the request is from and then to the passenger's destination \
+floor, and the time the elevator takes to stop at intermediate stops. The \
+calculation is made possible as the outer control panel provides the system \
+with information on the destination floor of each passenger. If the \
+constraint cannot be fulfilled by any of the three elevator to take the \
+request, the request remain unprocessed until the constraint is fulfilled.\
+\>", "DetailNotes",
+ CellChangeTimes->{{3.6905994747546253`*^9, 3.690599510168151*^9}, {
+  3.6905995533437767`*^9, 3.690599560899781*^9}, {3.6905999912350955`*^9, 
+  3.690599991572831*^9}, {3.690600226776478*^9, 3.6906002943121295`*^9}, {
+  3.6906164436349115`*^9, 3.6906166142952337`*^9}, {3.6906183874726653`*^9, 
+  3.6906185676146317`*^9}, {3.6906187351877923`*^9, 3.690618793411254*^9}},
+ CellID->7276381],
+
+Cell["\<\
+The elevatorSystem function operates the elevator system according to the \
+states of the elevators and their task queues.\
+\>", "DetailNotes",
+ CellChangeTimes->{{3.6905994747546253`*^9, 3.690599510168151*^9}, {
+  3.6905995533437767`*^9, 3.690599560899781*^9}, {3.6905999912350955`*^9, 
+  3.690599991572831*^9}, {3.690600226776478*^9, 3.6906002943121295`*^9}, {
+  3.6906164436349115`*^9, 3.690616646629309*^9}, {3.690617172740119*^9, 
+  3.6906171777001905`*^9}, {3.690618725377363*^9, 3.6906187298713937`*^9}, {
+  3.6906187981855645`*^9, 3.6906188339688425`*^9}},
+ CellID->542105751],
+
+Cell["\<\
+The modelling part is an extension of a demonstration project of elevator \
+systems by William Drevno with all the manual inputs provided by the \
+elevatorSystem function automatically.\
+\>", "DetailNotes",
+ CellChangeTimes->{{3.6905994747546253`*^9, 3.690599510168151*^9}, {
+  3.6905995533437767`*^9, 3.690599560899781*^9}, {3.6905999912350955`*^9, 
+  3.690599991572831*^9}, {3.690600226776478*^9, 3.6906002943121295`*^9}, {
+  3.6906164436349115`*^9, 3.6906166470053616`*^9}, {3.690618838585167*^9, 
+  3.690618976554318*^9}, {3.690619561267659*^9, 3.6906195614478703`*^9}},
+ CellID->254546802],
+
+Cell["\<\
+The system works as time flows, simulating the real-life case. The time \
+variable is set to be 0 initially and increments by 1 whenever the tick-tock \
+signal changes its value. The tick-tock signal is used to reach an \
+appropriate animation speed for demonstration, as when the range of a \
+variable becomes really large, the animation speed will be  set to be really \
+large, and here my program needs to simulate the system for a long enough \
+time.\
+\>", "DetailNotes",
+ CellChangeTimes->{{3.6905994747546253`*^9, 3.690599510168151*^9}, {
+   3.6905995533437767`*^9, 3.690599560899781*^9}, {3.6905999912350955`*^9, 
+   3.690599991572831*^9}, {3.690600226776478*^9, 3.6906002943121295`*^9}, {
+   3.6906164436349115`*^9, 3.6906166470053616`*^9}, {3.690618838585167*^9, 
+   3.690619235685278*^9}, 3.6906194535050073`*^9, 3.6906195109500895`*^9},
+ CellID->339756651],
+
+Cell["\<\
+However, in my project, the capacity of the elevator is assumed to be \
+infinity. Therefore, possible future improvements are: adding a sensor \
+monitoring the crowds in the elevator and if it is full, reject any request \
+along the way; counting the number of requests to decide the number of \
+elevators needed to be assigned to fulfill the needs. Also, as a final \
+notice, for the sake of simplicity, the acceleration and acceleration process \
+of the elevators are ignored.\
+\>", "DetailNotes",
+ CellChangeTimes->{{3.6906192545795245`*^9, 3.690619526406048*^9}},
+ CellID->521205744]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["", "ControlSuggestionsSection"],
+
+Cell[BoxData[
+ TooltipBox[
+  RowBox[{
+   CheckboxBox[False], Cell[" Resize Images"]}],
+  "\"Click inside an image to reveal its orange resize frame.\\nDrag any of \
+the orange resize handles to resize the image.\"",
+  TooltipDelay->0.35]], "ControlSuggestions",
+ FontFamily->"Verdana",
+ CellTags->"ResizeImages"],
+
+Cell[BoxData[
+ TooltipBox[
+  RowBox[{
+   CheckboxBox[False], Cell[" Rotate and Zoom in 3D"]}],
+  RowBox[{
+   "\"Drag a 3D graphic to rotate it. Starting the drag near the center \
+tumbles\\nthe graphic; starting near a corner turns it parallel to the plane \
+of the screen.\\nHold down \"", 
+    FrameBox[
+    "Ctrl", Background -> GrayLevel[0.9], FrameMargins -> 2, FrameStyle -> 
+     GrayLevel[0.9]], "\" (or \"", 
+    FrameBox[
+    "Cmd", Background -> GrayLevel[0.9], FrameMargins -> 2, FrameStyle -> 
+     GrayLevel[0.9]], "\" on Mac) and drag up and down to zoom.\""}],
+  TooltipDelay->0.35]], "ControlSuggestions",
+ FontFamily->"Verdana",
+ CellTags->"RotateAndZoomIn3D"],
+
+Cell[BoxData[
+ TooltipBox[
+  RowBox[{
+   CheckboxBox[False], Cell[" Drag Locators"]}],
+  RowBox[{"\"Drag any locator (\"", 
+    GraphicsBox[
+     LocatorBox[
+      Scaled[{0.5, 0.5}]], ImageSize -> 20], 
+    "\", etc.) to move it around.\""}],
+  TooltipDelay->0.35]], "ControlSuggestions",
+ FontFamily->"Verdana",
+ CellTags->"DragLocators"],
+
+Cell[BoxData[
+ TooltipBox[
+  RowBox[{
+   CheckboxBox[False], Cell[" Create and Delete Locators"]}],
+  RowBox[{"\"Insert a new locator in the graphic by holding down the \"", 
+    FrameBox[
+    "Alt", Background -> GrayLevel[0.9], FrameMargins -> 2, FrameStyle -> 
+     GrayLevel[0.9]], 
+    "\" key\\nand clicking where you want it to be. Delete a locator by \
+clicking it\\nwhile holding down the \"", 
+    FrameBox[
+    "Alt", Background -> GrayLevel[0.9], FrameMargins -> 2, FrameStyle -> 
+     GrayLevel[0.9]], "\" key.\""}],
+  TooltipDelay->0.35]], "ControlSuggestions",
+ FontFamily->"Verdana",
+ CellTags->"CreateAndDeleteLocators"],
+
+Cell[BoxData[
+ TooltipBox[
+  RowBox[{
+   CheckboxBox[False], Cell[" Slider Zoom"]}],
+  RowBox[{"\"Hold down the \"", 
+    FrameBox[
+    "Alt", Background -> GrayLevel[0.9], FrameMargins -> 2, FrameStyle -> 
+     GrayLevel[0.9]], 
+    "\" key while moving a slider to make fine adjustments in the slider \
+value.\\nHold \"", 
+    FrameBox[
+    "Ctrl", Background -> GrayLevel[0.9], FrameMargins -> 2, FrameStyle -> 
+     GrayLevel[0.9]], "\" and/or \"", 
+    FrameBox[
+    "Shift", Background -> GrayLevel[0.9], FrameMargins -> 2, FrameStyle -> 
+     GrayLevel[0.9]], "\" at the same time as \"", 
+    FrameBox[
+    "Alt", Background -> GrayLevel[0.9], FrameMargins -> 2, FrameStyle -> 
+     GrayLevel[0.9]], "\" to make ever finer adjustments.\""}],
+  TooltipDelay->0.35]], "ControlSuggestions",
+ FontFamily->"Verdana",
+ CellTags->"SliderZoom"],
+
+Cell[BoxData[
+ TooltipBox[
+  RowBox[{
+   CheckboxBox[False], Cell[" Gamepad Controls"]}],
+  "\"Control this Demonstration with a gamepad or other\\nhuman interface \
+device connected to your computer.\"",
+  TooltipDelay->0.35]], "ControlSuggestions",
+ CellChangeTimes->{3.35696210375764*^9, 3.3895522232313623`*^9},
+ FontFamily->"Verdana",
+ CellTags->"GamepadControls"],
+
+Cell[BoxData[
+ TooltipBox[
+  RowBox[{
+   CheckboxBox[True], Cell[" Automatic Animation"]}],
+  RowBox[{"\"Animate a slider in this Demonstration by clicking the\"", 
+    AdjustmentBox[
+     Cell[
+      GraphicsData[
+      "CompressedBitmap", 
+       "eJzzTSzJSM1NLMlMTlRwL0osyMhMLlZwyy8CCjEzMjAwcIKwAgOI/R/IhBKc\n\
+/4EAyGAG0f+nTZsGwgysIJIRKsWKLAXGIHFmEpUgLADxWUAkI24jZs+eTaEt\n\
+IG+wQKRmzJgBlYf5lhEA30OqWA=="], "Graphics", ImageSize -> {9, 9}, ImageMargins -> 
+      0, CellBaseline -> Baseline], BoxBaselineShift -> 0.1839080459770115, 
+     BoxMargins -> {{0., 0.}, {-0.1839080459770115, 0.1839080459770115}}], 
+    "\"button\\nnext to the slider, and then clicking the play button that \
+appears.\\nAnimate all controls by selecting \"", 
+    StyleBox["Autorun", FontWeight -> "Bold"], "\" from the\"", 
+    AdjustmentBox[
+     Cell[
+      GraphicsData[
+      "CompressedBitmap", 
+       "eJyNULENwyAQfEySIlMwTVJlCGRFsosokeNtqBmDBagoaZjAI1C8/8GUUUC6\n\
+57h7cQ8PvU7Pl17nUav7oj/TPH7V7b2QJAUAXBkKmCPRowxICy64bRvGGNF7\n\
+X8CctGoDSN4xhIDGGDhzFXwUh3/ClBKrDQPmnGXtI6u0OOd+tZBVUqy1xSaH\n\
+UqiK6pPe4XdEdAz6563tx/gejuORGMxJaz8mdpJn7hc="], "Graphics", 
+      ImageSize -> {10, 10}, ImageMargins -> 0, CellBaseline -> Baseline], 
+     BoxBaselineShift -> 0.1839080459770115, 
+     BoxMargins -> {{0., 0.}, {-0.1839080459770115, 0.1839080459770115}}], 
+    "\"menu.\""}],
+  TooltipDelay->0.35]], "ControlSuggestions",
+ CellChangeTimes->{{3.6903416432704453`*^9, 3.6903416439707384`*^9}, 
+   3.690371440835595*^9},
+ FontFamily->"Verdana",
+ CellTags->"AutomaticAnimation"],
+
+Cell[BoxData[
+ TooltipBox[
+  RowBox[{
+   CheckboxBox[False], Cell[" Bookmark Animation"]}],
+  RowBox[{
+   "\"See a prepared animation of this Demonstration by selecting\\n\"", 
+    StyleBox["Animate Bookmarks", FontWeight -> "Bold"], "\" from the\"", 
+    AdjustmentBox[
+     Cell[
+      GraphicsData[
+      "CompressedBitmap", 
+       "eJyNULENwyAQfEySIlMwTVJlCGRFsosokeNtqBmDBagoaZjAI1C8/8GUUUC6\n\
+57h7cQ8PvU7Pl17nUav7oj/TPH7V7b2QJAUAXBkKmCPRowxICy64bRvGGNF7\n\
+X8CctGoDSN4xhIDGGDhzFXwUh3/ClBKrDQPmnGXtI6u0OOd+tZBVUqy1xSaH\n\
+UqiK6pPe4XdEdAz6563tx/gejuORGMxJaz8mdpJn7hc="], "Graphics", 
+      ImageSize -> {10, 10}, ImageMargins -> 0, CellBaseline -> Baseline], 
+     BoxBaselineShift -> 0.1839080459770115, 
+     BoxMargins -> {{0., 0.}, {-0.1839080459770115, 0.1839080459770115}}], 
+    "\"menu.\""}],
+  TooltipDelay->0.35]], "ControlSuggestions",
+ FontFamily->"Verdana",
+ CellTags->"BookmarkAnimation"]
+}, Open  ]],
+
+Cell["", "SearchTermsSection"],
+
+Cell[CellGroupData[{
+
+Cell["", "RelatedLinksSection"],
+
+Cell[TextData[{
+ "The 3-D modeling of the elevator system is based on the ",
+ ButtonBox["Elevator System",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["http://demonstrations.wolfram.com/ElevatorSystem/"], None},
+  ButtonNote->"http://demonstrations.wolfram.com/ElevatorSystem/"],
+ " demonstration."
+}], "RelatedLinks",
+ CellChangeTimes->{{3.6893391994878235`*^9, 3.6893392717556877`*^9}, {
+  3.689339402674678*^9, 3.6893394314525843`*^9}},
+ CellID->644944639]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["", "AuthorSection"],
+
+Cell["Contributed by: Zhanghao Chen", "Author",
+ CellChangeTimes->{{3.689339281744297*^9, 3.6893392837744503`*^9}}],
+
+Cell["Based on a program by: William Drevno", "Author",
+ CellChangeTimes->{{3.689339360959354*^9, 3.6893393714942913`*^9}},
+ CellID->318878835]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{1303, 725},
+WindowMargins->{{-8, Automatic}, {Automatic, -8}},
+FrontEndVersion->"11.0 for Microsoft Windows (64-bit) (July 28, 2016)",
+StyleDefinitions->FrontEnd`FileName[{"Wolfram"}, "Demonstration.nb", 
+  CharacterEncoding -> "UTF-8"]
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{
+ "ResizeImages"->{
+  Cell[148609, 3200, 312, 8, 22, "ControlSuggestions",
+   CellTags->"ResizeImages"]},
+ "RotateAndZoomIn3D"->{
+  Cell[148924, 3210, 678, 16, 22, "ControlSuggestions",
+   CellTags->"RotateAndZoomIn3D"]},
+ "DragLocators"->{
+  Cell[149605, 3228, 340, 11, 22, "ControlSuggestions",
+   CellTags->"DragLocators"]},
+ "CreateAndDeleteLocators"->{
+  Cell[149948, 3241, 637, 15, 22, "ControlSuggestions",
+   CellTags->"CreateAndDeleteLocators"]},
+ "SliderZoom"->{
+  Cell[150588, 3258, 844, 21, 22, "ControlSuggestions",
+   CellTags->"SliderZoom"]},
+ "GamepadControls"->{
+  Cell[151435, 3281, 369, 9, 22, "ControlSuggestions",
+   CellTags->"GamepadControls"]},
+ "AutomaticAnimation"->{
+  Cell[151807, 3292, 1559, 33, 22, "ControlSuggestions",
+   CellTags->"AutomaticAnimation"]},
+ "BookmarkAnimation"->{
+  Cell[153369, 3327, 908, 21, 22, "ControlSuggestions",
+   CellTags->"BookmarkAnimation"]}
+ }
+*)
+(*CellTagsIndex
+CellTagsIndex->{
+ {"ResizeImages", 155568, 3395},
+ {"RotateAndZoomIn3D", 155678, 3398},
+ {"DragLocators", 155789, 3401},
+ {"CreateAndDeleteLocators", 155906, 3404},
+ {"SliderZoom", 156021, 3407},
+ {"GamepadControls", 156128, 3410},
+ {"AutomaticAnimation", 156242, 3413},
+ {"BookmarkAnimation", 156360, 3416}
+ }
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[558, 20, 109, 2, 44, "Input",
+ CellID->129567775],
+Cell[CellGroupData[{
+Cell[692, 26, 387, 9, 44, "DemoTitle"],
+Cell[CellGroupData[{
+Cell[1104, 39, 33, 0, 275, "InitializationSection"],
+Cell[1140, 41, 55791, 1380, 3804, "Input",
+ InitializationCell->True,
+ CellID->200066314]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[56968, 1426, 29, 0, 189, "ManipulateSection"],
+Cell[CellGroupData[{
+Cell[57022, 1430, 20681, 427, 854, "Input"],
+Cell[77706, 1859, 31821, 581, 547, "Output",
+ CellID->675076384]
+}, {2}]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[109573, 2446, 36, 0, 169, "ManipulateCaptionSection"],
+Cell[109612, 2448, 1078, 16, 67, "ManipulateCaption",
+ CellID->580849337]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[110727, 2469, 28, 0, 172, "ThumbnailSection"],
+Cell[110758, 2471, 7807, 148, 460, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[118602, 2624, 28, 0, 142, "SnapshotsSection"],
+Cell[118633, 2626, 7903, 150, 460, "Output"],
+Cell[126539, 2778, 7708, 145, 460, "Output",
+ CellID->151806917],
+Cell[134250, 2925, 7705, 145, 460, "Output",
+ CellID->527130816]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[141992, 3075, 26, 0, 335, "DetailsSection"],
+Cell[142021, 3077, 1021, 16, 52, "DetailNotes",
+ CellID->357187802],
+Cell[143045, 3095, 1043, 16, 37, "DetailNotes",
+ CellID->197773208],
+Cell[144091, 3113, 491, 8, 22, "DetailNotes",
+ CellID->141311493],
+Cell[144585, 3123, 1263, 18, 82, "DetailNotes",
+ CellID->7276381],
+Cell[145851, 3143, 594, 10, 22, "DetailNotes",
+ CellID->542105751],
+Cell[146448, 3155, 604, 10, 22, "DetailNotes",
+ CellID->254546802],
+Cell[147055, 3167, 877, 14, 52, "DetailNotes",
+ CellID->339756651],
+Cell[147935, 3183, 597, 10, 52, "DetailNotes",
+ CellID->521205744]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[148569, 3198, 37, 0, 126, "ControlSuggestionsSection"],
+Cell[148609, 3200, 312, 8, 22, "ControlSuggestions",
+ CellTags->"ResizeImages"],
+Cell[148924, 3210, 678, 16, 22, "ControlSuggestions",
+ CellTags->"RotateAndZoomIn3D"],
+Cell[149605, 3228, 340, 11, 22, "ControlSuggestions",
+ CellTags->"DragLocators"],
+Cell[149948, 3241, 637, 15, 22, "ControlSuggestions",
+ CellTags->"CreateAndDeleteLocators"],
+Cell[150588, 3258, 844, 21, 22, "ControlSuggestions",
+ CellTags->"SliderZoom"],
+Cell[151435, 3281, 369, 9, 22, "ControlSuggestions",
+ CellTags->"GamepadControls"],
+Cell[151807, 3292, 1559, 33, 22, "ControlSuggestions",
+ CellTags->"AutomaticAnimation"],
+Cell[153369, 3327, 908, 21, 22, "ControlSuggestions",
+ CellTags->"BookmarkAnimation"]
+}, Open  ]],
+Cell[154292, 3351, 30, 0, 155, "SearchTermsSection"],
+Cell[CellGroupData[{
+Cell[154347, 3355, 31, 0, 129, "RelatedLinksSection"],
+Cell[154381, 3357, 465, 11, 22, "RelatedLinks",
+ CellID->644944639]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[154883, 3373, 25, 0, 141, "AuthorSection"],
+Cell[154911, 3375, 115, 1, 22, "Author"],
+Cell[155029, 3378, 143, 2, 22, "Author",
+ CellID->318878835]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
